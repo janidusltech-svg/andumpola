@@ -6,6 +6,7 @@ import { Product, formatLKR } from "@/lib/types";
 import ContactButtons from "@/components/ContactButtons";
 import OrderButton from "@/components/OrderButton";
 import SaveButton from "@/components/SaveButton";
+import ShareButton from "@/components/ShareButton";
 
 export const revalidate = 60;
 
@@ -203,6 +204,13 @@ export default async function ProductPage({
             )}
             <div className="mt-3">
               <SaveButton productId={p.id} variant="full" />
+            </div>
+            <div className="mt-3 flex justify-center">
+              <ShareButton
+                url={productUrl}
+                text={`Check out "${p.title}" on AndumPola!`}
+                label="Share this product"
+              />
             </div>
             <p className="mt-4 text-[11px] text-soft text-center border-t border-line pt-3">
               Payments go directly to the shop. AndumPola does not process or

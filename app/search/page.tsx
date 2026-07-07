@@ -5,15 +5,22 @@ import { supabasePublic } from "@/lib/supabase/public";
 import { Category, Product } from "@/lib/types";
 import { ProductCard } from "@/components/cards";
 import SearchBar from "@/components/SearchBar";
+import CategoryPicker from "@/components/CategoryPicker";
+import { PROVINCES } from "@/lib/lk-locations";
 
 export const metadata = { title: "Search — AndumPola" };
 
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    province?: string;
+    district?: string;
+  }>;
 }) {
-  const { q, category } = await searchParams;
+  const { q, category, province, district } = await searchParams;
   const supabase = supabasePublic();
 
   const { data: categories } = await supabase
@@ -21,9 +28,19 @@ export default async function SearchPage({
     .select("*")
     .order("sort_order");
 
+  // If filtering by province/district, first find matching shop ids
+  let shopIds: string[] | null = null;
+  if (province || district) {
+    let shopQuery = supabase.from("shops").select("id").eq("status", "active");
+    if (province) shopQuery = shopQuery.eq("province", province);
+    if (district) shopQuery = shopQuery.eq("district", district);
+    const { data: shops } = await shopQuery;
+    shopIds = (shops ?? []).map((s) => s.id);
+  }
+
   let query = supabase
     .from("products")
-    .select("*, shops(name, slug, city), categories!inner(name, slug)")
+    .select("*, shops(name, slug, city, district), categories!inner(name, slug)")
     .eq("is_available", true)
     .order("created_at", { ascending: false })
     .limit(48);
@@ -34,14 +51,33 @@ export default async function SearchPage({
       config: "simple",
     });
   }
-  if (category) {
-    query = query.eq("categories.slug", category);
+  if (category) query = query.eq("categories.slug", category);
+  if (shopIds) {
+    // no matching shops in that area → empty result
+    query = query.in("shop_id", shopIds.length ? shopIds : ["none"]);
   }
 
   const { data: products } = await query;
   const activeCategory = (categories as Category[] | null)?.find(
     (c) => c.slug === category
   );
+
+  const selectedProvince = PROVINCES.find((p) => p.name === province);
+
+  // helper to build a query string preserving other filters
+  function qs(next: Record<string, string | undefined>) {
+    const merged: Record<string, string | undefined> = {
+      q,
+      category,
+      province,
+      district,
+      ...next,
+    };
+    const parts = Object.entries(merged)
+      .filter(([, v]) => v)
+      .map(([k, v]) => `${k}=${encodeURIComponent(v as string)}`);
+    return `/search${parts.length ? "?" + parts.join("&") : ""}`;
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -58,32 +94,72 @@ export default async function SearchPage({
         </Suspense>
       </div>
 
-      <div className="flex gap-2 flex-wrap mb-8">
-        <Link
-          href={q ? `/search?q=${encodeURIComponent(q)}` : "/search"}
-          className={`rounded-full px-3 py-1.5 text-sm border ${
-            !category
-              ? "bg-berry text-white border-berry"
-              : "bg-white border-line hover:border-berry"
-          }`}
-        >
-          All
-        </Link>
-        {(categories as Category[] | null)?.map((c) => (
+      {/* Location filter */}
+      <div className="mb-4 rounded-xl bg-white border border-line p-4">
+        <p className="text-sm font-semibold mb-2">Filter by location</p>
+        <div className="flex flex-wrap gap-2 items-center">
           <Link
-            key={c.id}
-            href={`/search?${q ? `q=${encodeURIComponent(q)}&` : ""}category=${
-              c.slug
-            }`}
+            href={qs({ province: undefined, district: undefined })}
             className={`rounded-full px-3 py-1.5 text-sm border ${
-              category === c.slug
+              !province
                 ? "bg-berry text-white border-berry"
                 : "bg-white border-line hover:border-berry"
             }`}
           >
-            {c.name}
+            All Sri Lanka
           </Link>
-        ))}
+          {PROVINCES.map((p) => (
+            <Link
+              key={p.slug}
+              href={qs({ province: p.name, district: undefined })}
+              className={`rounded-full px-3 py-1.5 text-sm border ${
+                province === p.name
+                  ? "bg-berry text-white border-berry"
+                  : "bg-white border-line hover:border-berry"
+              }`}
+            >
+              {p.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* Districts of the selected province */}
+        {selectedProvince && (
+          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-line">
+            <Link
+              href={qs({ district: undefined })}
+              className={`rounded-full px-3 py-1 text-xs border ${
+                !district
+                  ? "bg-ink text-white border-ink"
+                  : "bg-white border-line hover:border-berry"
+              }`}
+            >
+              All {selectedProvince.name}
+            </Link>
+            {selectedProvince.districts.map((d) => (
+              <Link
+                key={d}
+                href={qs({ district: d })}
+                className={`rounded-full px-3 py-1 text-xs border ${
+                  district === d
+                    ? "bg-ink text-white border-ink"
+                    : "bg-white border-line hover:border-berry"
+                }`}
+              >
+                {d}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Category filter */}
+      <div className="mb-8">
+        <CategoryPicker
+          categories={(categories as Category[]) ?? []}
+          activeSlug={category}
+          baseParams={{ q, province, district }}
+        />
       </div>
 
       {products && products.length > 0 ? (
@@ -96,7 +172,7 @@ export default async function SearchPage({
         <div className="text-center py-16 bg-white border border-line rounded-lg">
           <p className="display text-xl font-semibold">Nothing found</p>
           <p className="text-soft text-sm mt-1">
-            Try a different word or browse a category above.
+            Try a different word, category, or location.
           </p>
         </div>
       )}

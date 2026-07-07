@@ -5,6 +5,7 @@ import { supabasePublic } from "@/lib/supabase/public";
 import { Category, Product, Shop } from "@/lib/types";
 import { ProductCard, ShopCard } from "@/components/cards";
 import SearchBar from "@/components/SearchBar";
+import CategoryPicker from "@/components/CategoryPicker";
 
 export const revalidate = 60;
 
@@ -52,16 +53,12 @@ export default async function HomePage() {
 
       {/* Categories */}
       <section className="pb-10">
-        <div className="flex gap-2 flex-wrap justify-center">
-          {(categories as Category[] | null)?.map((c) => (
-            <Link
-              key={c.id}
-              href={`/search?category=${c.slug}`}
-              className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium border-t-2 border-t-turmeric hover:border-berry hover:text-berry"
-            >
-              {c.name}
-            </Link>
-          ))}
+        <div className="flex justify-center">
+          <div className="w-full max-w-4xl">
+            <CategoryPicker
+              categories={(categories as Category[]) ?? []}
+            />
+          </div>
         </div>
       </section>
 

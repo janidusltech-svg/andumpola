@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CreateShopForm from "@/components/CreateShopForm";
+import SetupGuide from "@/components/SetupGuide";
 import { formatLKR } from "@/lib/types";
 
 export default async function DashboardHome() {
@@ -82,6 +83,22 @@ export default async function DashboardHome() {
           View orders
         </Link>
       </div>
+
+      {/* New shop → show setup guide prominently */}
+      {(productCount ?? 0) < 3 && (
+        <div className="mt-8">
+          <div className="rounded-xl bg-berry/5 border border-berry/20 p-5 mb-4">
+            <h2 className="display font-bold text-lg">
+              👋 New here? Let&apos;s set up your shop
+            </h2>
+            <p className="text-soft text-sm mt-1">
+              Follow these steps to get ready for customers. You can reopen this
+              anytime from <strong>Setup guide</strong> in the menu.
+            </p>
+          </div>
+          <SetupGuide compact />
+        </div>
+      )}
     </div>
   );
 }

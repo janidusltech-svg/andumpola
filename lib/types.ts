@@ -17,6 +17,8 @@ export type Shop = {
   phone: string;
   address: string | null;
   city: string | null;
+  province: string | null;
+  district: string | null;
   enable_online_orders: boolean;
   created_at: string;
 };

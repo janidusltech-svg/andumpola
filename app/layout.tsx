@@ -50,16 +50,50 @@ export default function RootLayout({
 
         <main className="flex-1">{children}</main>
 
-        <footer className="border-t border-line mt-16">
-          <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-soft flex flex-col sm:flex-row justify-between gap-2">
-            <p>
-              © {new Date().getFullYear()} AndumPola — connecting Sri Lankan
-              clothing shops and customers.
-            </p>
-            <div className="flex flex-col sm:items-end gap-1">
-              <Link href="/track" className="text-berry font-medium">
-                Track your order
-              </Link>
+        <footer className="border-t border-line mt-16 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="col-span-2 md:col-span-1">
+                <span className="display text-xl font-bold text-ink">
+                  Andum<span className="text-berry">Pola</span>
+                </span>
+                <p className="text-sm text-soft mt-2">
+                  Sri Lanka&apos;s online clothing market. Every clothing shop,
+                  one pola.
+                </p>
+              </div>
+
+              <div>
+                <p className="font-semibold text-sm mb-3">Explore</p>
+                <ul className="space-y-2 text-sm text-soft">
+                  <li><Link href="/shops" className="hover:text-berry">All shops</Link></li>
+                  <li><Link href="/search" className="hover:text-berry">Search products</Link></li>
+                  <li><Link href="/track" className="hover:text-berry">Track your order</Link></li>
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-semibold text-sm mb-3">For shops</p>
+                <ul className="space-y-2 text-sm text-soft">
+                  <li><Link href="/signup" className="hover:text-berry">Open a shop</Link></li>
+                  <li><Link href="/login" className="hover:text-berry">Shop login</Link></li>
+                  <li><Link href="/faq" className="hover:text-berry">FAQ</Link></li>
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-semibold text-sm mb-3">Company</p>
+                <ul className="space-y-2 text-sm text-soft">
+                  <li><Link href="/about" className="hover:text-berry">About</Link></li>
+                  <li><Link href="/contact" className="hover:text-berry">Contact</Link></li>
+                  <li><Link href="/terms" className="hover:text-berry">Terms</Link></li>
+                  <li><Link href="/privacy" className="hover:text-berry">Privacy</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-line flex flex-col sm:flex-row justify-between gap-2 text-xs text-soft">
+              <p>© {new Date().getFullYear()} AndumPola. All rights reserved.</p>
               <p>
                 Payments are made directly to shops. AndumPola does not process
                 or hold payments.

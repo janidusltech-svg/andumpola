@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
+import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
 
 function slugify(s: string) {
   return s
@@ -29,6 +30,8 @@ export default function CreateShopForm() {
     description: "",
     whatsapp: "",
     phone: "",
+    province: "",
+    district: "",
     city: "",
     address: "",
   });
@@ -70,6 +73,8 @@ export default function CreateShopForm() {
         description: f.description.trim() || null,
         whatsapp: f.whatsapp.replace(/[^0-9]/g, ""),
         phone: f.phone.trim(),
+        province: f.province || null,
+        district: f.district || null,
         city: f.city.trim() || null,
         address: f.address.trim() || null,
         logo_url,
@@ -122,12 +127,18 @@ export default function CreateShopForm() {
           placeholder="0771234567"
         />
       </div>
+      <ProvinceDistrictSelect
+        province={f.province}
+        district={f.district}
+        onProvinceChange={(v) => setF({ ...f, province: v })}
+        onDistrictChange={(v) => setF({ ...f, district: v })}
+      />
       <div className="grid grid-cols-2 gap-4">
         <Field
-          label="City"
+          label="City / Town"
           value={f.city}
           onChange={(v) => setF({ ...f, city: v })}
-          placeholder="Colombo"
+          placeholder="Maharagama"
         />
         <Field
           label="Address"

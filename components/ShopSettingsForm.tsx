@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
 import { Shop } from "@/lib/types";
+import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
 
 type ShopFull = Shop & {
   bank_name?: string | null;
@@ -21,6 +22,8 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
     description: shop.description ?? "",
     whatsapp: shop.whatsapp,
     phone: shop.phone,
+    province: shop.province ?? "",
+    district: shop.district ?? "",
     city: shop.city ?? "",
     address: shop.address ?? "",
     bank_name: shop.bank_name ?? "",
@@ -50,6 +53,8 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
         description: f.description.trim() || null,
         whatsapp: f.whatsapp.replace(/[^0-9]/g, ""),
         phone: f.phone.trim(),
+        province: f.province || null,
+        district: f.district || null,
         city: f.city.trim() || null,
         address: f.address.trim() || null,
         bank_name: f.bank_name.trim() || null,
@@ -98,8 +103,14 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
           <Field label="WhatsApp" value={f.whatsapp} onChange={(v) => setF({ ...f, whatsapp: v })} />
           <Field label="Phone" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
         </div>
+        <ProvinceDistrictSelect
+          province={f.province}
+          district={f.district}
+          onProvinceChange={(v) => setF({ ...f, province: v })}
+          onDistrictChange={(v) => setF({ ...f, district: v })}
+        />
         <div className="grid grid-cols-2 gap-4">
-          <Field label="City" value={f.city} onChange={(v) => setF({ ...f, city: v })} />
+          <Field label="City / Town" value={f.city} onChange={(v) => setF({ ...f, city: v })} />
           <Field label="Address" value={f.address} onChange={(v) => setF({ ...f, address: v })} />
         </div>
         <div className="grid grid-cols-2 gap-4">

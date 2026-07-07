@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { supabasePublic } from "@/lib/supabase/public";
 import { Product, Shop } from "@/lib/types";
 import { ProductCard } from "@/components/cards";
+import ShareButton from "@/components/ShareButton";
 
 export const revalidate = 60;
 
@@ -106,14 +107,38 @@ export default async function ShopPage({
               </div>
             )}
           </div>
-          <div className="pb-1 min-w-0">
+          <div className="pb-1 min-w-0 flex-1">
             <h1 className="display text-2xl sm:text-3xl font-bold truncate">
               {s.name}
             </h1>
             <p className="text-sm text-soft">
-              {[s.city, s.address].filter(Boolean).join(" · ") || "Sri Lanka"}
+              {[
+                s.city,
+                (s as { district?: string }).district,
+                (s as { province?: string }).province
+                  ? `${(s as { province?: string }).province} Province`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" · ") || "Sri Lanka"}
             </p>
           </div>
+          <div className="pb-1 hidden sm:block">
+            <ShareButton
+              url={`/${s.slug}`}
+              text={`Check out ${s.name} on AndumPola!`}
+              label="Share shop"
+            />
+          </div>
+        </div>
+
+        {/* Mobile share */}
+        <div className="sm:hidden mb-4">
+          <ShareButton
+            url={`/${s.slug}`}
+            text={`Check out ${s.name} on AndumPola!`}
+            label="Share this shop"
+          />
         </div>
 
         {s.description && (
