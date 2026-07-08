@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabasePublic } from "@/lib/supabase/public";
-import { Product, formatLKR } from "@/lib/types";
+import { Product, formatLKR, audienceLabel } from "@/lib/types";
 import ContactButtons from "@/components/ContactButtons";
 import OrderButton from "@/components/OrderButton";
 import SaveButton from "@/components/SaveButton";
 import ShareButton from "@/components/ShareButton";
+import ProductGallery from "@/components/ProductGallery";
 
 export const revalidate = 60;
 
@@ -91,46 +92,28 @@ export default async function ProductPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Gallery */}
-        <div className="space-y-3">
-          <div className="aspect-[3/4] rounded-xl overflow-hidden bg-white border border-line">
-            {p.images?.[0] ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={p.images[0]}
-                alt={p.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center text-soft">
-                No photo
-              </div>
-            )}
-          </div>
-          {p.images && p.images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {p.images.slice(1, 5).map((img, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={i}
-                  src={img}
-                  alt=""
-                  className="aspect-square rounded-lg object-cover border border-line bg-white"
-                />
-              ))}
-            </div>
-          )}
+        <div>
+          <ProductGallery images={p.images ?? []} title={p.title} />
         </div>
 
         {/* Details */}
         <div>
-          {p.categories && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {p.categories && (
+              <Link
+                href={`/search?category=${p.categories.slug}`}
+                className="text-xs font-medium text-berry"
+              >
+                {p.categories.name}
+              </Link>
+            )}
             <Link
-              href={`/search?category=${p.categories.slug}`}
-              className="text-xs font-medium text-berry"
+              href={`/search?audience=${p.audience}`}
+              className="text-[11px] font-semibold bg-sand border border-line rounded-full px-2 py-0.5 hover:border-berry"
             >
-              {p.categories.name}
+              {audienceLabel(p.audience)}
             </Link>
-          )}
+          </div>
           <h1 className="display text-3xl font-bold mt-1">{p.title}</h1>
           <p className="mt-3">
             <span className="tag-price !text-lg !px-4 !py-1">

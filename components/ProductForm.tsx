@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
-import { Category, Product } from "@/lib/types";
+import { Category, Product, AUDIENCES } from "@/lib/types";
 import ImageCropper from "@/components/ImageCropper";
 
 type SizeRow = { size: string; qty: string };
@@ -26,6 +26,7 @@ export default function ProductForm({
     description: existing?.description ?? "",
     price: existing ? String(existing.price) : "",
     category_id: existing?.category_id ?? categories[0]?.id ?? "",
+    audience: existing?.audience ?? "unisex",
     is_available: existing?.is_available ?? true,
   });
   const [sizes, setSizes] = useState<SizeRow[]>(
@@ -90,6 +91,7 @@ export default function ProductForm({
         description: f.description.trim() || null,
         price: parseFloat(f.price),
         category_id: f.category_id,
+        audience: f.audience,
         sizes: sizesObj,
         images,
         is_available: f.is_available,
@@ -151,6 +153,31 @@ export default function ProductForm({
             ))}
           </select>
         </label>
+      </div>
+
+      {/* Audience: who is this for? */}
+      <div>
+        <span className="text-sm font-medium">Who is it for? *</span>
+        <div className="mt-1.5 flex gap-2 flex-wrap">
+          {AUDIENCES.map((a) => (
+            <button
+              key={a.value}
+              type="button"
+              onClick={() => setF({ ...f, audience: a.value })}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold border transition-colors ${
+                f.audience === a.value
+                  ? "bg-ink text-white border-ink"
+                  : "bg-white border-line hover:border-berry hover:text-berry"
+              }`}
+            >
+              {a.emoji} {a.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-soft mt-1">
+          Customers filter by Men / Women / Kids — pick the right one so your
+          product is found.
+        </p>
       </div>
 
       <label className="block">

@@ -61,10 +61,15 @@ export function ShopCard({ shop }: { shop: Shop }) {
       href={`/${shop.slug}`}
       className="group rounded-2xl bg-white border border-line overflow-hidden hover:shadow-[0_12px_30px_rgba(27,23,32,0.08)] hover:-translate-y-0.5 transition-all"
     >
-      <div className="h-24 bg-gradient-to-br from-rose-soft to-white">
+      <div className="h-24 bg-gradient-to-br from-rose-soft to-white relative">
         {shop.banner_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={shop.banner_url} alt="" className="h-full w-full object-cover" />
+        )}
+        {(shop.shop_type === "wholesale" || shop.shop_type === "both") && (
+          <span className="absolute top-2 right-2 rounded-full bg-turmeric text-white px-2.5 py-0.5 text-[10px] font-bold shadow">
+            Wholesale
+          </span>
         )}
       </div>
       <div className="p-4 flex items-center gap-3 -mt-8">

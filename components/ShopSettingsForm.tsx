@@ -7,6 +7,8 @@ import { uploadImage } from "@/lib/upload";
 import { Shop } from "@/lib/types";
 import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
 import CroppedFileField from "@/components/CroppedFileField";
+import LocationPicker from "@/components/LocationPicker";
+import { SHOP_TYPES, SHOP_MODES } from "@/lib/types";
 
 type ShopFull = Shop & {
   bank_name?: string | null;
@@ -32,7 +34,14 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
     bank_account_name: shop.bank_account_name ?? "",
     bank_account_number: shop.bank_account_number ?? "",
     enable_online_orders: shop.enable_online_orders,
+    shop_type: (shop.shop_type ?? "retail") as string,
+    shop_mode: (shop.shop_mode ?? "both") as string,
   });
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    shop.latitude != null && shop.longitude != null
+      ? { lat: shop.latitude, lng: shop.longitude }
+      : null
+  );
   const [logo, setLogo] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
   const [msg, setMsg] = useState("");
@@ -63,6 +72,10 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
         bank_account_name: f.bank_account_name.trim() || null,
         bank_account_number: f.bank_account_number.trim() || null,
         enable_online_orders: f.enable_online_orders,
+        shop_type: f.shop_type,
+        shop_mode: f.shop_mode,
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lng ?? null,
         updated_at: new Date().toISOString(),
       };
       if (logo) patch.logo_url = await uploadImage("shop-assets", logo, user.id);
@@ -118,6 +131,51 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
           <CroppedFileField label="Replace logo" kind="logo" file={logo} onChange={setLogo} />
           <CroppedFileField label="Replace banner" kind="banner" file={banner} onChange={setBanner} />
         </div>
+      </Section>
+
+      {/* Type, mode, location */}
+      <Section title="Shop type & location">
+        <div>
+          <span className="text-sm font-medium">Shop type</span>
+          <div className="mt-1.5 flex gap-2 flex-wrap">
+            {SHOP_TYPES.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setF({ ...f, shop_type: t.value })}
+                title={t.hint}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold border ${
+                  f.shop_type === t.value
+                    ? "bg-ink text-white border-ink"
+                    : "bg-white border-line hover:border-berry hover:text-berry"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <span className="text-sm font-medium">How do you operate?</span>
+          <div className="mt-1.5 flex gap-2 flex-wrap">
+            {SHOP_MODES.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setF({ ...f, shop_mode: m.value })}
+                title={m.hint}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold border ${
+                  f.shop_mode === m.value
+                    ? "bg-ink text-white border-ink"
+                    : "bg-white border-line hover:border-berry hover:text-berry"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <LocationPicker value={coords} onChange={(c) => setCoords(c)} />
       </Section>
 
       {/* Bank details */}

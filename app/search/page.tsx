@@ -18,9 +18,10 @@ export default async function SearchPage({
     category?: string;
     province?: string;
     district?: string;
+    audience?: string;
   }>;
 }) {
-  const { q, category, province, district } = await searchParams;
+  const { q, category, province, district, audience } = await searchParams;
   const supabase = supabasePublic();
 
   const { data: categories } = await supabase
@@ -52,6 +53,7 @@ export default async function SearchPage({
     });
   }
   if (category) query = query.eq("categories.slug", category);
+  if (audience) query = query.eq("audience", audience);
   if (shopIds) {
     // no matching shops in that area → empty result
     query = query.in("shop_id", shopIds.length ? shopIds : ["none"]);
@@ -71,6 +73,7 @@ export default async function SearchPage({
       category,
       province,
       district,
+      audience,
       ...next,
     };
     const parts = Object.entries(merged)
@@ -158,6 +161,7 @@ export default async function SearchPage({
         <CategoryPicker
           categories={(categories as Category[]) ?? []}
           activeSlug={category}
+          activeAudience={audience}
           baseParams={{ q, province, district }}
         />
       </div>

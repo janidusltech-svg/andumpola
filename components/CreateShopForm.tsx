@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
 import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
 import CroppedFileField from "@/components/CroppedFileField";
+import LocationPicker from "@/components/LocationPicker";
+import { SHOP_TYPES, SHOP_MODES } from "@/lib/types";
 
 function slugify(s: string) {
   return s
@@ -35,7 +37,12 @@ export default function CreateShopForm() {
     district: "",
     city: "",
     address: "",
+    shop_type: "retail",
+    shop_mode: "both",
   });
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
   const [logo, setLogo] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
   const [error, setError] = useState("");
@@ -78,6 +85,10 @@ export default function CreateShopForm() {
         district: f.district || null,
         city: f.city.trim() || null,
         address: f.address.trim() || null,
+        shop_type: f.shop_type,
+        shop_mode: f.shop_mode,
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lng ?? null,
         logo_url,
         banner_url,
         status: "pending",
@@ -148,6 +159,60 @@ export default function CreateShopForm() {
           placeholder="Optional"
         />
       </div>
+
+      {/* Shop type */}
+      <div>
+        <span className="text-sm font-medium">Shop type</span>
+        <div className="mt-1.5 flex gap-2 flex-wrap">
+          {SHOP_TYPES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => setF({ ...f, shop_type: t.value })}
+              title={t.hint}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold border ${
+                f.shop_type === t.value
+                  ? "bg-ink text-white border-ink"
+                  : "bg-white border-line hover:border-berry hover:text-berry"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-soft mt-1">
+          Wholesale = you sell in bulk (6+ pieces). Customers can filter for
+          wholesale shops.
+        </p>
+      </div>
+
+      {/* Shop mode */}
+      <div>
+        <span className="text-sm font-medium">How do you operate?</span>
+        <div className="mt-1.5 flex gap-2 flex-wrap">
+          {SHOP_MODES.map((m) => (
+            <button
+              key={m.value}
+              type="button"
+              onClick={() => setF({ ...f, shop_mode: m.value })}
+              title={m.hint}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold border ${
+                f.shop_mode === m.value
+                  ? "bg-ink text-white border-ink"
+                  : "bg-white border-line hover:border-berry hover:text-berry"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Location */}
+      <LocationPicker
+        value={coords}
+        onChange={(c) => setCoords(c)}
+      />
       <div className="grid grid-cols-2 gap-4">
         <CroppedFileField label="Logo" kind="logo" file={logo} onChange={setLogo} />
         <CroppedFileField label="Banner" kind="banner" file={banner} onChange={setBanner} />

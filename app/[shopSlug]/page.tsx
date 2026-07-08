@@ -5,6 +5,7 @@ import { supabasePublic } from "@/lib/supabase/public";
 import { Product, Shop } from "@/lib/types";
 import { ProductCard } from "@/components/cards";
 import ShareButton from "@/components/ShareButton";
+import ShopMap from "@/components/ShopMap";
 
 export const revalidate = 60;
 
@@ -141,8 +142,32 @@ export default async function ShopPage({
           />
         </div>
 
+        {/* Badges: wholesale + mode */}
+        <div className="flex gap-2 flex-wrap mb-4">
+          {(s.shop_type === "wholesale" || s.shop_type === "both") && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-turmeric/15 text-turmeric border border-turmeric/40 px-3 py-1 text-xs font-semibold">
+              🏷️ Wholesale{s.shop_type === "both" ? " & Retail" : ""}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 rounded-full bg-sand border border-line px-3 py-1 text-xs font-medium">
+            {s.shop_mode === "online"
+              ? "🌐 Online only"
+              : s.shop_mode === "physical"
+              ? "🏬 Physical store"
+              : "🌐 Online & 🏬 Physical"}
+          </span>
+        </div>
+
         {s.description && (
           <p className="text-soft max-w-2xl mb-6">{s.description}</p>
+        )}
+
+        {/* Location map */}
+        {s.latitude != null && s.longitude != null && (
+          <div className="mb-8 max-w-2xl">
+            <p className="text-sm font-semibold mb-2">📍 Shop location</p>
+            <ShopMap lat={s.latitude} lng={s.longitude} name={s.name} />
+          </div>
         )}
 
         {/* Category filter within shop */}
