@@ -50,7 +50,7 @@ export default async function HomePage() {
           <span className="text-[8px]">●</span> Sri Lanka&apos;s online clothing
           market
         </span>
-        <h1 className="display text-5xl sm:text-6xl font-extrabold leading-[1.02]">
+        <h1 className="display text-4xl sm:text-6xl font-extrabold leading-[1.05] sm:leading-[1.02] break-words">
           Every clothing shop.
           <br />
           One <span className="text-berry">pola</span>.

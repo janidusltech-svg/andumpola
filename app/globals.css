@@ -23,6 +23,11 @@ body {
   color: var(--color-ink);
   font-family: var(--font-body), sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 h1, h2, h3, .display {
