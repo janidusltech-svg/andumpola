@@ -22,9 +22,8 @@ export default function ProvinceDistrictSelect({
         <select
           value={province}
           onChange={(e) => {
-            const newProvince = e.target.value;
-            onProvinceChange(newProvince);
-            if (newProvince !== province) onDistrictChange(""); // reset only on real change
+            onProvinceChange(e.target.value);
+            onDistrictChange(""); // clear district; user picks a new one
           }}
           className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 bg-white outline-none focus:ring-2 focus:ring-berry/40"
         >

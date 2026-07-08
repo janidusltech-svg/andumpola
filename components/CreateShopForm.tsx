@@ -130,8 +130,8 @@ export default function CreateShopForm() {
       <ProvinceDistrictSelect
         province={f.province}
         district={f.district}
-        onProvinceChange={(v) => setF({ ...f, province: v })}
-        onDistrictChange={(v) => setF({ ...f, district: v })}
+        onProvinceChange={(v) => setF((prev) => ({ ...prev, province: v }))}
+        onDistrictChange={(v) => setF((prev) => ({ ...prev, district: v }))}
       />
       <div className="grid grid-cols-2 gap-4">
         <Field
