@@ -5,15 +5,18 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
 import { Category, Product } from "@/lib/types";
+import ImageCropper from "@/components/ImageCropper";
 
 type SizeRow = { size: string; qty: string };
 
 export default function ProductForm({
   categories,
   existing,
+  photoLimit = 3,
 }: {
   categories: Category[];
   existing?: Product;
+  photoLimit?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -37,6 +40,7 @@ export default function ProductForm({
     existing?.images ?? []
   );
   const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [cropQueue, setCropQueue] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -203,25 +207,53 @@ export default function ProductForm({
 
       {/* Images */}
       <div>
-        <span className="text-sm font-medium">Photos</span>
+        <div className="flex items-baseline justify-between">
+          <span className="text-sm font-medium">Photos</span>
+          <span className="text-xs text-soft">
+            {existingImages.length + newFiles.length} / {photoLimit}
+          </span>
+        </div>
         <p className="text-xs text-soft mb-2">
-          First photo is the main image. Add up to 5.
+          Add photos of different colours and angles. The first photo is the
+          main image customers see. Up to {photoLimit} photos on your plan.
         </p>
+
+        {/* Existing images with main badge + remove */}
         {existingImages.length > 0 && (
-          <div className="flex gap-2 flex-wrap mb-2">
+          <div className="flex gap-2 flex-wrap mb-3">
             {existingImages.map((img, i) => (
-              <div key={i} className="relative">
+              <div key={img} className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img}
                   alt=""
                   className="h-20 w-20 rounded-lg object-cover border border-line"
                 />
+                {i === 0 && (
+                  <span className="absolute bottom-1 left-1 bg-ink/80 text-white text-[9px] px-1.5 py-0.5 rounded">
+                    Main
+                  </span>
+                )}
+                {i !== 0 && (
+                  <button
+                    type="button"
+                    title="Make main image"
+                    onClick={() =>
+                      setExistingImages((imgs) => {
+                        const copy = [...imgs];
+                        const [m] = copy.splice(i, 1);
+                        return [m, ...copy];
+                      })
+                    }
+                    className="absolute bottom-1 left-1 bg-white/90 text-ink text-[9px] px-1.5 py-0.5 rounded border border-line hover:bg-white"
+                  >
+                    Set main
+                  </button>
+                )}
                 <button
+                  type="button"
                   onClick={() =>
-                    setExistingImages((imgs) =>
-                      imgs.filter((_, idx) => idx !== i)
-                    )
+                    setExistingImages((imgs) => imgs.filter((_, idx) => idx !== i))
                   }
                   className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-berry text-white text-xs"
                 >
@@ -231,18 +263,55 @@ export default function ProductForm({
             ))}
           </div>
         )}
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) =>
-            setNewFiles(Array.from(e.target.files ?? []).slice(0, 5))
-          }
-          className="w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-berry file:px-3 file:py-2 file:text-white file:font-medium"
-        />
+
+        {/* New file previews */}
         {newFiles.length > 0 && (
-          <p className="text-xs text-leaf mt-1">
-            {newFiles.length} new photo(s) selected
+          <div className="flex gap-2 flex-wrap mb-3">
+            {newFiles.map((file, i) => (
+              <div key={i} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt=""
+                  className="h-20 w-20 rounded-lg object-cover border border-dashed border-berry"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setNewFiles((files) => files.filter((_, idx) => idx !== i))
+                  }
+                  className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-berry text-white text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {existingImages.length + newFiles.length < photoLimit ? (
+          <label className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm font-medium cursor-pointer hover:border-berry hover:text-berry">
+            + Add photos
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const picked = Array.from(e.target.files ?? []);
+                const room = photoLimit - existingImages.length - newFiles.length;
+                // send to crop queue — each photo gets cropped to 3:4
+                setCropQueue((prev) => [...prev, ...picked.slice(0, room)]);
+                e.target.value = ""; // allow re-picking same file
+              }}
+            />
+          </label>
+        ) : (
+          <p className="text-xs text-turmeric bg-turmeric/10 border border-turmeric/30 rounded-lg px-3 py-2">
+            Photo limit reached ({photoLimit}).{" "}
+            {photoLimit < 10 && (
+              <>Upgrade to Pro for up to 10 photos per product.</>
+            )}
           </p>
         )}
       </div>
@@ -278,6 +347,19 @@ export default function ProductForm({
           Cancel
         </button>
       </div>
+
+      {/* Crop window — photos are cropped one at a time to 3:4 */}
+      {cropQueue.length > 0 && (
+        <ImageCropper
+          file={cropQueue[0]}
+          kind="product"
+          onDone={(cropped) => {
+            setNewFiles((prev) => [...prev, cropped]);
+            setCropQueue((prev) => prev.slice(1));
+          }}
+          onCancel={() => setCropQueue((prev) => prev.slice(1))}
+        />
+      )}
     </div>
   );
 }

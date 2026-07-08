@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
 import { Shop } from "@/lib/types";
 import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
+import CroppedFileField from "@/components/CroppedFileField";
 
 type ShopFull = Shop & {
   bank_name?: string | null;
@@ -114,8 +115,8 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
           <Field label="Address" value={f.address} onChange={(v) => setF({ ...f, address: v })} />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <FileField label="Replace logo" onChange={setLogo} file={logo} />
-          <FileField label="Replace banner" onChange={setBanner} file={banner} />
+          <CroppedFileField label="Replace logo" kind="logo" file={logo} onChange={setLogo} />
+          <CroppedFileField label="Replace banner" kind="banner" file={banner} onChange={setBanner} />
         </div>
       </Section>
 

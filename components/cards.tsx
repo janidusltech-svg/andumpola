@@ -11,7 +11,7 @@ export function ProductCard({ product }: { product: Product }) {
         <SaveButton productId={product.id} />
       </div>
       <Link href={`/${product.shops?.slug}/${product.id}`} className="block">
-        <div className="aspect-[3/4] bg-sand overflow-hidden">
+        <div className="aspect-[3/4] bg-sand overflow-hidden relative">
           {img ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -24,16 +24,27 @@ export function ProductCard({ product }: { product: Product }) {
               No photo
             </div>
           )}
+          {product.images && product.images.length > 1 && (
+            <span className="absolute bottom-2 left-2 bg-ink/70 text-white text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+              <svg viewBox="0 0 24 24" className="h-3 w-3 fill-current">
+                <path d="M4 6h14v12H4V6zm2 2v8h10V8H6zm14-2h2v14H6v-2h14V6z" />
+              </svg>
+              {product.images.length}
+            </span>
+          )}
         </div>
         <div className="p-3.5">
-          <p className="text-sm font-medium line-clamp-2 mb-2">{product.title}</p>
+          <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem] mb-2">
+            {product.title}
+          </p>
           <span className="tag-price">{formatLKR(product.price)}</span>
-          {product.shops && (
-            <p className="text-xs text-soft truncate mt-2">
-              {product.shops.name}
-              {product.shops.city ? ` · ${product.shops.city}` : ""}
-            </p>
-          )}
+          <p className="text-xs text-soft truncate mt-2 min-h-[1rem]">
+            {product.shops
+              ? `${product.shops.name}${
+                  product.shops.city ? ` · ${product.shops.city}` : ""
+                }`
+              : "\u00A0"}
+          </p>
         </div>
       </Link>
     </div>

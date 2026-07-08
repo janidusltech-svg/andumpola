@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
 import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
+import CroppedFileField from "@/components/CroppedFileField";
 
 function slugify(s: string) {
   return s
@@ -148,8 +149,8 @@ export default function CreateShopForm() {
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <FileField label="Logo" onChange={setLogo} file={logo} />
-        <FileField label="Banner" onChange={setBanner} file={banner} />
+        <CroppedFileField label="Logo" kind="logo" file={logo} onChange={setLogo} />
+        <CroppedFileField label="Banner" kind="banner" file={banner} onChange={setBanner} />
       </div>
 
       {error && <p className="text-sm text-berry">{error}</p>}
