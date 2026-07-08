@@ -85,7 +85,7 @@ export default async function SearchPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between mb-6">
-        <h1 className="display text-3xl font-bold">
+        <h1 className="display text-2xl sm:text-3xl font-bold">
           {q
             ? `Results for "${q}"`
             : activeCategory

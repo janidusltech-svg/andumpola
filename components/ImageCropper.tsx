@@ -66,7 +66,7 @@ export default function ImageCropper({
       className="fixed inset-0 bg-ink/80 flex items-center justify-center p-4"
       style={{ zIndex: 100000 }}
     >
-      <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden max-h-[92vh] flex flex-col">
         <div className="px-5 py-4 border-b border-line flex items-center justify-between">
           <h3 className="display font-bold">Adjust your {preset.label.toLowerCase()}</h3>
           <button onClick={onCancel} className="text-soft hover:text-berry text-xl">
@@ -74,7 +74,7 @@ export default function ImageCropper({
           </button>
         </div>
 
-        <div className="relative h-[340px] bg-ink/90">
+        <div className="relative h-[45vh] max-h-[340px] min-h-[220px] bg-ink/90 shrink-0">
           {src && (
             <Cropper
               image={src}
@@ -90,7 +90,7 @@ export default function ImageCropper({
           )}
         </div>
 
-        <div className="px-5 py-4 space-y-4">
+        <div className="px-5 py-4 space-y-4 overflow-y-auto">
           <label className="block">
             <span className="text-xs text-soft">Zoom</span>
             <input

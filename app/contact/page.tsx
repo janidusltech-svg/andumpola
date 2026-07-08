@@ -6,7 +6,7 @@ export const metadata = { title: "Contact — AndumPola" };
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="display text-4xl font-bold mb-2">Contact us</h1>
+      <h1 className="display text-3xl sm:text-4xl font-bold mb-2">Contact us</h1>
       <p className="text-soft mb-8">
         Questions, feedback, or need help with your shop? Reach out.
       </p>
@@ -18,14 +18,14 @@ export default function ContactPage() {
             href="mailto:hello@andumpola.lk"
             className="display text-lg font-bold text-berry"
           >
-            jaidusltech@gmail.com
+            hello@andumpola.lk
           </a>
         </div>
 
         <div className="rounded-xl bg-white border border-line p-6">
           <p className="text-sm text-soft">WhatsApp</p>
           <a
-            href="https://wa.me/94772453769"
+            href="https://wa.me/94770000000"
             target="_blank"
             rel="noopener noreferrer"
             className="display text-lg font-bold text-leaf"

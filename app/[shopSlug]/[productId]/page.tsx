@@ -114,7 +114,7 @@ export default async function ProductPage({
               {audienceLabel(p.audience)}
             </Link>
           </div>
-          <h1 className="display text-3xl font-bold mt-1">{p.title}</h1>
+          <h1 className="display text-2xl sm:text-3xl font-bold mt-1">{p.title}</h1>
           <p className="mt-3">
             <span className="tag-price !text-lg !px-4 !py-1">
               {formatLKR(p.price)}

@@ -4,7 +4,7 @@ export const metadata = { title: "Terms of Service — AndumPola" };
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="display text-4xl font-bold mb-2">Terms of Service</h1>
+      <h1 className="display text-3xl sm:text-4xl font-bold mb-2">Terms of Service</h1>
       <p className="text-soft mb-8">Last updated: {new Date().getFullYear()}</p>
 
       <div className="space-y-6 text-sm text-ink leading-relaxed">

@@ -43,7 +43,7 @@ const FAQS = [
 export default function FAQPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="display text-4xl font-bold mb-2">
+      <h1 className="display text-3xl sm:text-4xl font-bold mb-2">
         Frequently asked questions
       </h1>
       <p className="text-soft mb-8">Everything you need to know about AndumPola.</p>

@@ -6,7 +6,7 @@ export const metadata = { title: "About — AndumPola" };
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="display text-4xl font-bold mb-2">About AndumPola</h1>
+      <h1 className="display text-3xl sm:text-4xl font-bold mb-2">About AndumPola</h1>
       <p className="text-berry font-medium mb-8">
         ඇඳුම්පොළ — every clothing shop, one pola.
       </p>

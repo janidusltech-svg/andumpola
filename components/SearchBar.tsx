@@ -90,15 +90,15 @@ export default function SearchBar({ big = false }: { big?: boolean }) {
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => q.trim().length >= 2 && setOpen(true)}
           onKeyDown={(e) => e.key === "Enter" && go()}
-          placeholder="Search frocks, sarees, shirts…"
-          className={`flex-1 px-4 outline-none bg-transparent ${
-            big ? "py-3.5 text-base" : "py-2.5 text-sm"
+          placeholder="Search frocks, sarees…"
+          className={`flex-1 min-w-0 px-3 sm:px-4 outline-none bg-transparent ${
+            big ? "py-3 sm:py-3.5 text-base" : "py-2.5 text-sm"
           }`}
         />
         <button
           onClick={go}
-          className={`bg-berry text-white font-medium hover:bg-berry-dark ${
-            big ? "px-6" : "px-4 text-sm"
+          className={`shrink-0 bg-berry text-white font-medium hover:bg-berry-dark ${
+            big ? "px-4 sm:px-6 text-sm sm:text-base" : "px-3 sm:px-4 text-sm"
           }`}
         >
           Search

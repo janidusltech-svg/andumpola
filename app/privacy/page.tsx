@@ -4,7 +4,7 @@ export const metadata = { title: "Privacy Policy — AndumPola" };
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="display text-4xl font-bold mb-2">Privacy Policy</h1>
+      <h1 className="display text-3xl sm:text-4xl font-bold mb-2">Privacy Policy</h1>
       <p className="text-soft mb-8">Last updated: {new Date().getFullYear()}</p>
 
       <div className="space-y-6 text-sm text-ink leading-relaxed">
