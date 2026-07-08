@@ -124,7 +124,7 @@ export default function CreateShopForm() {
         onChange={(v) => setF({ ...f, description: v })}
         placeholder="Tell customers what you sell…"
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field
           label="WhatsApp number *"
           value={f.whatsapp}
@@ -145,7 +145,7 @@ export default function CreateShopForm() {
         onProvinceChange={(v) => setF((prev) => ({ ...prev, province: v }))}
         onDistrictChange={(v) => setF((prev) => ({ ...prev, district: v }))}
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field
           label="City / Town"
           value={f.city}
@@ -213,7 +213,7 @@ export default function CreateShopForm() {
         value={coords}
         onChange={(c) => setCoords(c)}
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <CroppedFileField label="Logo" kind="logo" file={logo} onChange={setLogo} />
         <CroppedFileField label="Banner" kind="banner" file={banner} onChange={setBanner} />
       </div>
@@ -223,7 +223,7 @@ export default function CreateShopForm() {
       <button
         onClick={submit}
         disabled={loading}
-        className="rounded-lg bg-berry text-white font-semibold px-6 py-3 hover:bg-berry-dark disabled:opacity-60"
+        className="rounded-lg bg-berry text-white font-semibold px-6 py-3.5 hover:bg-berry-dark disabled:opacity-60 w-full sm:w-auto"
       >
         {loading ? "Creating shop…" : "Create shop"}
       </button>

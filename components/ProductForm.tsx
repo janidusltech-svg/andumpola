@@ -128,7 +128,7 @@ export default function ProductForm({
         />
       </label>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="block">
           <span className="text-sm font-medium">Price (LKR) *</span>
           <input
@@ -355,11 +355,11 @@ export default function ProductForm({
 
       {error && <p className="text-sm text-berry">{error}</p>}
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={submit}
           disabled={loading}
-          className="rounded-lg bg-berry text-white font-semibold px-6 py-3 hover:bg-berry-dark disabled:opacity-60"
+          className="rounded-lg bg-berry text-white font-semibold px-6 py-3.5 hover:bg-berry-dark disabled:opacity-60 w-full sm:w-auto"
         >
           {loading
             ? "Saving…"
@@ -369,7 +369,7 @@ export default function ProductForm({
         </button>
         <button
           onClick={() => router.push("/dashboard/products")}
-          className="rounded-lg border border-line font-semibold px-6 py-3 hover:border-berry"
+          className="rounded-lg border border-line font-semibold px-6 py-3.5 hover:border-berry w-full sm:w-auto"
         >
           Cancel
         </button>

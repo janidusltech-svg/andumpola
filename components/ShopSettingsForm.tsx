@@ -113,7 +113,7 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
           value={f.description}
           onChange={(v) => setF({ ...f, description: v })}
         />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="WhatsApp" value={f.whatsapp} onChange={(v) => setF({ ...f, whatsapp: v })} />
           <Field label="Phone" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
         </div>
@@ -123,11 +123,11 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
           onProvinceChange={(v) => setF((prev) => ({ ...prev, province: v }))}
           onDistrictChange={(v) => setF((prev) => ({ ...prev, district: v }))}
         />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="City / Town" value={f.city} onChange={(v) => setF({ ...f, city: v })} />
           <Field label="Address" value={f.address} onChange={(v) => setF({ ...f, address: v })} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <CroppedFileField label="Replace logo" kind="logo" file={logo} onChange={setLogo} />
           <CroppedFileField label="Replace banner" kind="banner" file={banner} onChange={setBanner} />
         </div>
@@ -184,7 +184,7 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
           Shown to customers ONLY when they order from your shop. Customers pay
           you directly — AndumPola never handles this money.
         </p>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Bank name" value={f.bank_name} onChange={(v) => setF({ ...f, bank_name: v })} placeholder="Commercial Bank" />
           <Field label="Branch" value={f.bank_branch} onChange={(v) => setF({ ...f, bank_branch: v })} placeholder="Maharagama" />
         </div>
