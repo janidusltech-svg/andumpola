@@ -1,9 +1,20 @@
 // app/api/orders/route.ts
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    // Max 10 orders per minute per IP — stops order spam
+    const ip = clientIp(req);
+    const rl = await rateLimit(`orders:${ip}`, 10, 60);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment and try again." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const {
       product_id,
@@ -28,7 +39,20 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    const qty = Math.max(1, parseInt(String(quantity)) || 1);
+    const qty = Math.max(1, Math.min(999, parseInt(String(quantity)) || 1));
+
+    // Reject oversized inputs (basic abuse protection)
+    if (
+      String(customer_name).length > 100 ||
+      String(customer_phone).length > 20 ||
+      String(customer_address).length > 500 ||
+      String(size).length > 50
+    ) {
+      return NextResponse.json(
+        { error: "One of your inputs is too long." },
+        { status: 400 }
+      );
+    }
 
     const supabase = supabaseAdmin();
 

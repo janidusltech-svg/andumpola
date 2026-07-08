@@ -1,8 +1,16 @@
 // app/api/search/route.ts
 import { NextResponse } from "next/server";
 import { supabasePublic } from "@/lib/supabase/public";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function GET(req: Request) {
+  // Max 60 searches per minute per IP — generous for typing, stops scraping
+  const ip = clientIp(req);
+  const rl = await rateLimit(`search:${ip}`, 60, 60);
+  if (!rl.success) {
+    return NextResponse.json({ products: [], shops: [] }, { status: 429 });
+  }
+
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
 

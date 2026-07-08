@@ -21,18 +21,18 @@ export default async function SiteHeader() {
   const isCustomer = role === "customer";
 
   return (
-    <header className="sticky top-0 z-40 bg-sand/95 backdrop-blur border-b border-line">
-      <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-paper/90 backdrop-blur border-b border-line">
+      <div className="mx-auto max-w-6xl px-6 h-[68px] flex items-center justify-between gap-5">
         <Link href="/" className="leading-none">
-          <span className="block text-[11px] tracking-wide text-berry">
+          <span className="block text-[10px] tracking-wide text-berry font-semibold">
             ඇඳුම්පොළ
           </span>
-          <span className="display text-2xl font-bold text-ink">
+          <span className="display text-2xl font-extrabold text-ink">
             Andum<span className="text-berry">Pola</span>
           </span>
         </Link>
 
-        <nav className="flex items-center gap-3 sm:gap-4 text-sm font-medium">
+        <nav className="flex items-center gap-3 sm:gap-5 text-sm font-medium">
           <Link href="/shops" className="hover:text-berry">
             Shops
           </Link>
@@ -42,13 +42,10 @@ export default async function SiteHeader() {
 
           {!user && (
             <>
-              <Link href="/account/login" className="hover:text-berry">
+              <Link href="/account/login" className="btn btn-ghost !py-2 !px-4 hidden sm:inline-flex">
                 Log in
               </Link>
-              <Link
-                href="/signup"
-                className="rounded-md bg-berry px-3 py-2 text-white hover:bg-berry-dark"
-              >
+              <Link href="/signup" className="btn btn-primary !py-2 !px-4">
                 <span className="sm:hidden">Sell</span>
                 <span className="hidden sm:inline">Sell on AndumPola</span>
               </Link>
@@ -56,10 +53,7 @@ export default async function SiteHeader() {
           )}
 
           {isCustomer && (
-            <Link
-              href="/account/saved"
-              className="rounded-md bg-berry px-3 py-2 text-white hover:bg-berry-dark"
-            >
+            <Link href="/account/saved" className="btn btn-primary !py-2 !px-4">
               ♥ Saved
             </Link>
           )}
@@ -71,10 +65,7 @@ export default async function SiteHeader() {
                   Admin
                 </Link>
               )}
-              <Link
-                href="/dashboard"
-                className="rounded-md bg-berry px-3 py-2 text-white hover:bg-berry-dark"
-              >
+              <Link href="/dashboard" className="btn btn-primary !py-2 !px-4">
                 My shop
               </Link>
             </>

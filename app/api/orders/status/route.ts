@@ -1,9 +1,20 @@
 // app/api/orders/status/route.ts
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    // Max 20 status checks per minute per IP — stops brute-forcing order refs
+    const ip = clientIp(req);
+    const rl = await rateLimit(`status:${ip}`, 20, 60);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment." },
+        { status: 429 }
+      );
+    }
+
     const { order_ref, phone } = await req.json();
     if (!order_ref?.trim() || !phone?.trim()) {
       return NextResponse.json(

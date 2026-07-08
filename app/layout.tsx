@@ -1,6 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
+import { Schibsted_Grotesk, Inter } from "next/font/google";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
@@ -8,13 +8,13 @@ import "./globals.css";
 // Header reads the logged-in user, so render per-request
 export const dynamic = "force-dynamic";
 
-const bricolage = Bricolage_Grotesque({
+const display = Schibsted_Grotesk({
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  variable: "--font-display",
 });
-const instrument = Instrument_Sans({
+const body = Inter({
   subsets: ["latin"],
-  variable: "--font-instrument",
+  variable: "--font-body",
 });
 
 export const metadata: Metadata = {
@@ -44,7 +44,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${instrument.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className="min-h-screen flex flex-col">
         <SiteHeader />
 
