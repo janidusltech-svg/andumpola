@@ -73,10 +73,10 @@ export function ShopCard({ shop }: { shop: Shop }) {
         )}
       </div>
       <div className="p-4 flex items-center gap-3 -mt-8">
-        <div className="h-14 w-14 rounded-2xl border-[3px] border-white bg-sand overflow-hidden shrink-0 shadow-sm flex items-center justify-center">
+        <div className="h-14 w-14 rounded-2xl border-[3px] border-white bg-white overflow-hidden shrink-0 shadow-sm flex items-center justify-center p-1">
           {shop.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={shop.logo_url} alt={shop.name} className="h-full w-full object-cover" />
+            <img src={shop.logo_url} alt={shop.name} className="h-full w-full object-contain" />
           ) : (
             <span className="display font-bold text-berry text-lg">
               {shop.name.charAt(0)}

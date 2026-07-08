@@ -94,13 +94,13 @@ export default async function ShopPage({
       <div className="mx-auto max-w-6xl px-4">
         {/* Shop header */}
         <div className="flex items-end gap-4 -mt-10 mb-6">
-          <div className="h-24 w-24 rounded-xl border-4 border-sand bg-white overflow-hidden shadow shrink-0">
+          <div className="h-24 w-24 rounded-xl border-4 border-sand bg-white overflow-hidden shadow shrink-0 flex items-center justify-center p-1.5">
             {s.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={s.logo_url}
                 alt={s.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
               />
             ) : (
               <div className="h-full w-full flex items-center justify-center display text-3xl font-bold text-berry">

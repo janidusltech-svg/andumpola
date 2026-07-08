@@ -129,10 +129,10 @@ export default function SearchBar({ big = false }: { big?: boolean }) {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-4 py-2 hover:bg-sand"
                 >
-                  <div className="h-8 w-8 rounded-full bg-line/50 overflow-hidden shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-white border border-line overflow-hidden shrink-0 flex items-center justify-center p-0.5">
                     {s.logo_url && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={s.logo_url} alt="" className="h-full w-full object-cover" />
+                      <img src={s.logo_url} alt="" className="h-full w-full object-contain" />
                     )}
                   </div>
                   <span className="text-sm font-medium">{s.name}</span>
