@@ -49,7 +49,8 @@ export default function ShopMap({
     <div>
       <div
         ref={mapRef}
-        className="h-64 w-full rounded-2xl border border-line overflow-hidden bg-sand"
+        className="h-64 w-full rounded-2xl border border-line overflow-hidden bg-sand relative"
+        style={{ zIndex: 0, isolation: "isolate" }}
       />
       <a
         href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`}

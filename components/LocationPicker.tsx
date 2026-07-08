@@ -114,7 +114,8 @@ export default function LocationPicker({
       </div>
       <div
         ref={mapRef}
-        className="h-64 w-full rounded-lg border border-line overflow-hidden bg-sand"
+        className="h-64 w-full rounded-lg border border-line overflow-hidden bg-sand relative"
+        style={{ zIndex: 0, isolation: "isolate" }}
       />
       {!ready && (
         <p className="text-xs text-soft mt-1">Loading map…</p>

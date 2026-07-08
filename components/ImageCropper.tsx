@@ -62,7 +62,10 @@ export default function ImageCropper({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] bg-ink/70 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 bg-ink/80 flex items-center justify-center p-4"
+      style={{ zIndex: 100000 }}
+    >
       <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden">
         <div className="px-5 py-4 border-b border-line flex items-center justify-between">
           <h3 className="display font-bold">Adjust your {preset.label.toLowerCase()}</h3>
