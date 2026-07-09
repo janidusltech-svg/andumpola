@@ -113,9 +113,9 @@ export default async function ShopPage({
       </div>
 
       <div>
-        {/* Shop header */}
-        <div className="flex items-end gap-4 -mt-10 mb-6">
-          <div className="h-24 w-24 rounded-xl border-4 border-sand bg-white overflow-hidden shadow shrink-0 flex items-center justify-center p-1.5">
+        {/* Shop header — stacks on mobile, row on desktop */}
+        <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4 -mt-10 mb-6">
+          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl border-4 border-sand bg-white overflow-hidden shadow shrink-0 flex items-center justify-center p-1.5">
             {s.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -124,13 +124,13 @@ export default async function ShopPage({
                 className="h-full w-full object-contain"
               />
             ) : (
-              <div className="h-full w-full flex items-center justify-center display text-3xl font-bold text-berry">
+              <div className="h-full w-full flex items-center justify-center display text-2xl sm:text-3xl font-bold text-berry">
                 {s.name.charAt(0)}
               </div>
             )}
           </div>
           <div className="pb-1 min-w-0 flex-1">
-            <h1 className="display text-2xl sm:text-3xl font-bold truncate">
+            <h1 className="display text-2xl sm:text-3xl font-bold break-words">
               {s.name}
             </h1>
             <p className="text-sm text-soft">

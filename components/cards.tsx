@@ -67,13 +67,14 @@ export function ShopCard({ shop }: { shop: Shop }) {
           <img src={shop.banner_url} alt="" className="h-full w-full object-cover" />
         )}
         {(shop.shop_type === "wholesale" || shop.shop_type === "both") && (
-          <span className="absolute top-2 right-2 rounded-full bg-turmeric text-white px-2.5 py-0.5 text-[10px] font-bold shadow">
+          <span className="absolute top-2 right-2 rounded-full bg-turmeric text-white px-2.5 py-0.5 text-[10px] font-bold shadow z-10">
             Wholesale
           </span>
         )}
       </div>
-      <div className="p-4 flex items-center gap-3 -mt-8">
-        <div className="h-14 w-14 rounded-2xl border-[3px] border-white bg-white overflow-hidden shrink-0 shadow-sm flex items-center justify-center p-1">
+      <div className="px-4 pb-4 pt-0 relative">
+        {/* Logo floats in front of the banner */}
+        <div className="h-14 w-14 rounded-2xl border-[3px] border-white bg-white overflow-hidden shrink-0 shadow-md flex items-center justify-center p-1 -mt-8 relative z-10">
           {shop.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={shop.logo_url} alt={shop.name} className="h-full w-full object-contain" />
@@ -83,7 +84,7 @@ export function ShopCard({ shop }: { shop: Shop }) {
             </span>
           )}
         </div>
-        <div className="pt-6 min-w-0">
+        <div className="mt-2 min-w-0">
           <p className="font-semibold truncate group-hover:text-berry">
             {shop.name}
           </p>
