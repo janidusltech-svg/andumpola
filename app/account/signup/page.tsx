@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import GoogleButton from "@/components/GoogleButton";
 import { createClient } from "@/lib/supabase/client";
 
 function SignupInner() {
@@ -83,6 +84,18 @@ function SignupInner() {
         >
           {loading ? "Creating…" : "Create account"}
         </button>
+
+        <div className="flex items-center gap-3 py-1">
+          <span className="h-px bg-line flex-1" />
+          <span className="text-xs text-soft">or</span>
+          <span className="h-px bg-line flex-1" />
+        </div>
+        <GoogleButton
+          accountType="customer"
+          next={next || "/"}
+          label="Sign up with Google"
+        />
+
         <p className="text-sm text-soft text-center">
           Already have an account?{" "}
           <Link

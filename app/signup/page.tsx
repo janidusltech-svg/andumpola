@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import GoogleButton from "@/components/GoogleButton";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
@@ -84,6 +85,14 @@ export default function SignupPage() {
         >
           {loading ? "Creating…" : "Create account"}
         </button>
+
+        <div className="flex items-center gap-3 py-1">
+          <span className="h-px bg-line flex-1" />
+          <span className="text-xs text-soft">or</span>
+          <span className="h-px bg-line flex-1" />
+        </div>
+        <GoogleButton accountType="shop_owner" next="/dashboard" label="Sign up with Google" />
+
         <p className="text-sm text-soft text-center">
           Already have a shop?{" "}
           <Link href="/login" className="text-berry font-medium">

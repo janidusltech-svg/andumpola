@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import GoogleButton from "@/components/GoogleButton";
 import { createClient } from "@/lib/supabase/client";
 
 function LoginInner() {
@@ -80,6 +81,14 @@ function LoginInner() {
         >
           {loading ? "Logging in…" : "Log in"}
         </button>
+
+        <div className="flex items-center gap-3 py-1">
+          <span className="h-px bg-line flex-1" />
+          <span className="text-xs text-soft">or</span>
+          <span className="h-px bg-line flex-1" />
+        </div>
+        <GoogleButton accountType="customer" next={next} />
+
         <p className="text-sm text-center">
           <Link href="/forgot-password" className="text-soft hover:text-berry">
             Forgot password?
