@@ -46,20 +46,10 @@ export default function ShopMap({
   }, []);
 
   return (
-    <div>
-      <div
-        ref={mapRef}
-        className="h-64 w-full rounded-2xl border border-line overflow-hidden bg-sand relative"
-        style={{ zIndex: 0, isolation: "isolate" }}
-      />
-      <a
-        href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm text-berry font-medium mt-2 inline-block"
-      >
-        Open in maps →
-      </a>
-    </div>
+    <div
+      ref={mapRef}
+      className="h-64 w-full rounded-2xl border border-line overflow-hidden bg-sand relative"
+      style={{ zIndex: 0, isolation: "isolate" }}
+    />
   );
 }

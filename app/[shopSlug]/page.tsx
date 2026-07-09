@@ -213,12 +213,20 @@ export default async function ShopPage({
           <p className="text-soft max-w-2xl mb-4">{s.description}</p>
         )}
 
-        {/* Business hours + social links */}
+        {/* Info row: hours + location link + socials */}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6">
           {s.business_hours && (
             <span className="inline-flex items-center gap-1.5 text-sm text-soft">
               🕒 {s.business_hours}
             </span>
+          )}
+          {s.latitude != null && s.longitude != null && (
+            <a
+              href="#location"
+              className="inline-flex items-center gap-1 text-sm font-medium text-berry hover:underline"
+            >
+              📍 Shop location
+            </a>
           )}
           {(s.facebook_url || s.instagram_url || s.tiktok_url) && (
             <span className="inline-flex items-center gap-2">
@@ -255,14 +263,6 @@ export default async function ShopPage({
             </span>
           )}
         </div>
-
-        {/* Location map */}
-        {s.latitude != null && s.longitude != null && (
-          <div className="mb-8 max-w-2xl">
-            <p className="text-sm font-semibold mb-2">📍 Shop location</p>
-            <ShopMap lat={s.latitude} lng={s.longitude} name={s.name} />
-          </div>
-        )}
 
         {/* Featured products — the shop's highlights */}
         {featured.length > 0 && !category && (
@@ -321,6 +321,32 @@ export default async function ShopPage({
           <p className="text-soft bg-white border border-line rounded-lg p-8 text-center mb-8">
             This shop has not added products yet. Check back soon!
           </p>
+        )}
+
+        {/* Shop location — at the bottom, jumped to via the header link */}
+        {s.latitude != null && s.longitude != null && (
+          <section id="location" className="pb-10 max-w-2xl scroll-mt-24">
+            <h2 className="display text-xl sm:text-2xl font-bold mb-3">
+              📍 Shop location
+            </h2>
+            <ShopMap lat={s.latitude} lng={s.longitude} name={s.name} />
+            <div className="flex flex-wrap gap-2 mt-3">
+              <a
+                href={`https://www.google.com/maps?q=${s.latitude},${s.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-berry text-white font-semibold px-4 py-2.5 text-sm hover:bg-berry-dark"
+              >
+                Open in Google Maps →
+              </a>
+              {s.address && (
+                <span className="inline-flex items-center text-sm text-soft">
+                  {s.address}
+                  {s.city ? `, ${s.city}` : ""}
+                </span>
+              )}
+            </div>
+          </section>
         )}
 
         {/* Reviews */}
