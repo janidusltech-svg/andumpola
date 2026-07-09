@@ -80,6 +80,11 @@ export type Shop = {
   shop_mode?: "online" | "physical" | "both";
   latitude?: number | null;
   longitude?: number | null;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
+  tiktok_url?: string | null;
+  business_hours?: string | null;
+  announcement?: string | null;
   enable_online_orders: boolean;
   created_at: string;
 };
@@ -94,6 +99,7 @@ export type Product = {
   audience: "men" | "women" | "kids" | "unisex";
   colors?: string[];
   wholesale_only?: boolean;
+  is_featured?: boolean;
   sizes: Record<string, number>;
   images: string[];
   is_available: boolean;

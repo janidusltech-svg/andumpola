@@ -28,6 +28,7 @@ export default function ProductForm({
     category_id: existing?.category_id ?? categories[0]?.id ?? "",
     audience: existing?.audience ?? "unisex",
     wholesale_only: existing?.wholesale_only ?? false,
+    is_featured: existing?.is_featured ?? false,
     is_available: existing?.is_available ?? true,
   });
   const [colors, setColors] = useState<string[]>(existing?.colors ?? []);
@@ -97,6 +98,7 @@ export default function ProductForm({
         audience: f.audience,
         colors,
         wholesale_only: f.wholesale_only,
+        is_featured: f.is_featured,
         sizes: sizesObj,
         images,
         is_available: f.is_available,
@@ -286,6 +288,23 @@ export default function ProductForm({
             Tick if this item is sold only in bulk (6+ pieces), not single
             retail. It gets a &ldquo;Wholesale only&rdquo; badge so customers
             know.
+          </span>
+        </span>
+      </label>
+
+      {/* Featured */}
+      <label className="flex items-start gap-3 rounded-xl border border-line p-3 cursor-pointer hover:border-berry">
+        <input
+          type="checkbox"
+          checked={f.is_featured}
+          onChange={(e) => setF({ ...f, is_featured: e.target.checked })}
+          className="mt-0.5 h-4 w-4 accent-[color:var(--color-berry)]"
+        />
+        <span>
+          <span className="text-sm font-medium">⭐ Feature this product</span>
+          <span className="block text-xs text-soft">
+            Featured products show first on your shop page — use it for your
+            best or newest items.
           </span>
         </span>
       </label>

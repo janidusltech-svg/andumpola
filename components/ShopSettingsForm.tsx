@@ -36,6 +36,11 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
     enable_online_orders: shop.enable_online_orders,
     shop_type: (shop.shop_type ?? "retail") as string,
     shop_mode: (shop.shop_mode ?? "both") as string,
+    facebook_url: shop.facebook_url ?? "",
+    instagram_url: shop.instagram_url ?? "",
+    tiktok_url: shop.tiktok_url ?? "",
+    business_hours: shop.business_hours ?? "",
+    announcement: shop.announcement ?? "",
   });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     shop.latitude != null && shop.longitude != null
@@ -74,6 +79,11 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
         enable_online_orders: f.enable_online_orders,
         shop_type: f.shop_type,
         shop_mode: f.shop_mode,
+        facebook_url: f.facebook_url.trim() || null,
+        instagram_url: f.instagram_url.trim() || null,
+        tiktok_url: f.tiktok_url.trim() || null,
+        business_hours: f.business_hours.trim() || null,
+        announcement: f.announcement.trim() || null,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
         updated_at: new Date().toISOString(),
@@ -176,6 +186,72 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
           </div>
         </div>
         <LocationPicker value={coords} onChange={(c) => setCoords(c)} />
+      </Section>
+
+      {/* Storefront — makes their page feel like their own website */}
+      <Section title="Your storefront">
+        <p className="text-xs text-soft -mt-2">
+          These make your shop page feel like your own website. Share your shop
+          link on Facebook &amp; WhatsApp!
+        </p>
+
+        <label className="block">
+          <span className="text-sm font-medium">Announcement (optional)</span>
+          <input
+            value={f.announcement}
+            onChange={(e) => setF({ ...f, announcement: e.target.value })}
+            maxLength={120}
+            placeholder="e.g. 20% off all frocks this week! 🎉"
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+          />
+          <span className="text-[11px] text-soft">
+            Shows as a banner at the top of your shop page.
+          </span>
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium">Business hours (optional)</span>
+          <input
+            value={f.business_hours}
+            onChange={(e) => setF({ ...f, business_hours: e.target.value })}
+            placeholder="Mon–Sat: 9am–6pm · Sun: closed"
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+          />
+        </label>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="block">
+            <span className="text-sm font-medium">Facebook link</span>
+            <input
+              value={f.facebook_url}
+              onChange={(e) => setF({ ...f, facebook_url: e.target.value })}
+              placeholder="https://facebook.com/yourpage"
+              className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium">Instagram link</span>
+            <input
+              value={f.instagram_url}
+              onChange={(e) => setF({ ...f, instagram_url: e.target.value })}
+              placeholder="https://instagram.com/yourpage"
+              className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium">TikTok link</span>
+            <input
+              value={f.tiktok_url}
+              onChange={(e) => setF({ ...f, tiktok_url: e.target.value })}
+              placeholder="https://tiktok.com/@yourpage"
+              className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+            />
+          </label>
+        </div>
+        <p className="text-xs text-soft">
+          Tip: mark your best products as &ldquo;Featured&rdquo; when editing
+          them — featured items show first on your shop page.
+        </p>
       </Section>
 
       {/* Bank details */}

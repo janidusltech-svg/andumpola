@@ -20,22 +20,36 @@ export async function generateMetadata({
   const supabase = supabasePublic();
   const { data: shop } = await supabase
     .from("shops")
-    .select("name, description, city, logo_url")
+    .select("name, description, city, logo_url, banner_url")
     .eq("slug", shopSlug)
     .single();
 
   if (!shop) return { title: "Shop not found — AndumPola" };
+
+  // Prefer banner for the shared preview image, fall back to logo
+  const previewImage = shop.banner_url || shop.logo_url;
+  const desc =
+    shop.description ||
+    `Shop clothing from ${shop.name}${
+      shop.city ? ` in ${shop.city}` : ""
+    } on AndumPola.`;
+
   return {
     title: `${shop.name} — AndumPola`,
-    description:
-      shop.description ||
-      `Shop clothing from ${shop.name}${
-        shop.city ? ` in ${shop.city}` : ""
-      } on AndumPola, Sri Lanka's online clothing market.`,
+    description: desc,
     openGraph: {
-      title: `${shop.name} — AndumPola`,
-      description: shop.description || `Clothing from ${shop.name} on AndumPola.`,
-      ...(shop.logo_url ? { images: [shop.logo_url] } : {}),
+      title: shop.name,
+      description: desc,
+      type: "website",
+      ...(previewImage
+        ? { images: [{ url: previewImage, width: 1200, height: 630 }] }
+        : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: shop.name,
+      description: desc,
+      ...(previewImage ? { images: [previewImage] } : {}),
     },
   };
 }
@@ -78,9 +92,11 @@ export default async function ShopPage({
     .select("*, shops(name, slug, city), categories(name, slug)")
     .eq("shop_id", s.id)
     .eq("is_available", true)
+    .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false });
 
   const all = (products ?? []) as Product[];
+  const featured = all.filter((p) => p.is_featured);
   const shopCategories = Array.from(
     new Map(
       all
@@ -94,6 +110,13 @@ export default async function ShopPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4">
+      {/* Announcement banner */}
+      {s.announcement && (
+        <div className="mt-4 rounded-xl bg-berry text-white px-4 py-2.5 text-sm font-medium text-center">
+          📢 {s.announcement}
+        </div>
+      )}
+
       {/* Banner — contained, 3:1 ratio like the cropper, rounded */}
       <div className="mt-4 rounded-2xl overflow-hidden bg-berry/10 aspect-[3/1] max-h-64">
         {s.banner_url ? (
@@ -187,14 +210,71 @@ export default async function ShopPage({
         </div>
 
         {s.description && (
-          <p className="text-soft max-w-2xl mb-6">{s.description}</p>
+          <p className="text-soft max-w-2xl mb-4">{s.description}</p>
         )}
+
+        {/* Business hours + social links */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6">
+          {s.business_hours && (
+            <span className="inline-flex items-center gap-1.5 text-sm text-soft">
+              🕒 {s.business_hours}
+            </span>
+          )}
+          {(s.facebook_url || s.instagram_url || s.tiktok_url) && (
+            <span className="inline-flex items-center gap-2">
+              {s.facebook_url && (
+                <a
+                  href={s.facebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-berry hover:underline"
+                >
+                  Facebook
+                </a>
+              )}
+              {s.instagram_url && (
+                <a
+                  href={s.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-berry hover:underline"
+                >
+                  Instagram
+                </a>
+              )}
+              {s.tiktok_url && (
+                <a
+                  href={s.tiktok_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-berry hover:underline"
+                >
+                  TikTok
+                </a>
+              )}
+            </span>
+          )}
+        </div>
 
         {/* Location map */}
         {s.latitude != null && s.longitude != null && (
           <div className="mb-8 max-w-2xl">
             <p className="text-sm font-semibold mb-2">📍 Shop location</p>
             <ShopMap lat={s.latitude} lng={s.longitude} name={s.name} />
+          </div>
+        )}
+
+        {/* Featured products — the shop's highlights */}
+        {featured.length > 0 && !category && (
+          <div className="mb-8">
+            <h2 className="display text-xl font-bold mb-3 flex items-center gap-2">
+              ⭐ Featured
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {featured.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
           </div>
         )}
 
@@ -228,6 +308,9 @@ export default async function ShopPage({
         )}
 
         {/* Products */}
+        {featured.length > 0 && !category && visible.length > 0 && (
+          <h2 className="display text-xl font-bold mb-3">All products</h2>
+        )}
         {visible.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
             {visible.map((p) => (
