@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
-import { Category, Product, AUDIENCES } from "@/lib/types";
+import { Category, Product, AUDIENCES, COLORS, colorHex } from "@/lib/types";
 import ImageCropper from "@/components/ImageCropper";
 
 type SizeRow = { size: string; qty: string };
@@ -27,8 +27,11 @@ export default function ProductForm({
     price: existing ? String(existing.price) : "",
     category_id: existing?.category_id ?? categories[0]?.id ?? "",
     audience: existing?.audience ?? "unisex",
+    wholesale_only: existing?.wholesale_only ?? false,
     is_available: existing?.is_available ?? true,
   });
+  const [colors, setColors] = useState<string[]>(existing?.colors ?? []);
+  const [customColor, setCustomColor] = useState("");
   const [sizes, setSizes] = useState<SizeRow[]>(
     existing && Object.keys(existing.sizes ?? {}).length
       ? Object.entries(existing.sizes).map(([size, qty]) => ({
@@ -92,6 +95,8 @@ export default function ProductForm({
         price: parseFloat(f.price),
         category_id: f.category_id,
         audience: f.audience,
+        colors,
+        wholesale_only: f.wholesale_only,
         sizes: sizesObj,
         images,
         is_available: f.is_available,
@@ -179,6 +184,111 @@ export default function ProductForm({
           product is found.
         </p>
       </div>
+
+      {/* Colours */}
+      <div>
+        <span className="text-sm font-medium">Colours available</span>
+        <p className="text-xs text-soft mb-2">
+          Tap the colours this item comes in. Customers can filter by colour.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {COLORS.map((c) => {
+            const on = colors.includes(c.name);
+            return (
+              <button
+                key={c.name}
+                type="button"
+                onClick={() =>
+                  setColors((prev) =>
+                    on ? prev.filter((x) => x !== c.name) : [...prev, c.name]
+                  )
+                }
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${
+                  on
+                    ? "border-berry bg-berry/10 font-semibold"
+                    : "border-line hover:border-berry"
+                }`}
+              >
+                <span
+                  className="h-3.5 w-3.5 rounded-full border border-black/10"
+                  style={{ backgroundColor: c.hex }}
+                />
+                {c.name}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Custom colour + selected list */}
+        <div className="flex gap-2 mt-2">
+          <input
+            value={customColor}
+            onChange={(e) => setCustomColor(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const v = customColor.trim();
+                if (v && !colors.includes(v)) setColors((p) => [...p, v]);
+                setCustomColor("");
+              }
+            }}
+            placeholder="Other colour… (type & Enter)"
+            className="flex-1 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-berry/40"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              const v = customColor.trim();
+              if (v && !colors.includes(v)) setColors((p) => [...p, v]);
+              setCustomColor("");
+            }}
+            className="rounded-lg border border-line px-4 text-sm font-medium hover:border-berry"
+          >
+            Add
+          </button>
+        </div>
+        {colors.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {colors.map((c) => (
+              <span
+                key={c}
+                className="inline-flex items-center gap-1 rounded-full bg-sand border border-line px-2.5 py-1 text-xs"
+              >
+                <span
+                  className="h-2.5 w-2.5 rounded-full border border-black/10"
+                  style={{ backgroundColor: colorHex(c) }}
+                />
+                {c}
+                <button
+                  type="button"
+                  onClick={() => setColors((prev) => prev.filter((x) => x !== c))}
+                  className="text-soft hover:text-berry ml-0.5"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Wholesale only */}
+      <label className="flex items-start gap-3 rounded-xl border border-line p-3 cursor-pointer hover:border-berry">
+        <input
+          type="checkbox"
+          checked={f.wholesale_only}
+          onChange={(e) => setF({ ...f, wholesale_only: e.target.checked })}
+          className="mt-0.5 h-4 w-4 accent-[color:var(--color-berry)]"
+        />
+        <span>
+          <span className="text-sm font-medium">Wholesale only</span>
+          <span className="block text-xs text-soft">
+            Tick if this item is sold only in bulk (6+ pieces), not single
+            retail. It gets a &ldquo;Wholesale only&rdquo; badge so customers
+            know.
+          </span>
+        </span>
+      </label>
 
       <label className="block">
         <span className="text-sm font-medium">Description</span>

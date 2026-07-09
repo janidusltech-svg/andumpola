@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabasePublic } from "@/lib/supabase/public";
-import { Product, formatLKR, audienceLabel } from "@/lib/types";
+import { Product, formatLKR, audienceLabel, colorHex } from "@/lib/types";
 import ContactButtons from "@/components/ContactButtons";
 import OrderButton from "@/components/OrderButton";
 import SaveButton from "@/components/SaveButton";
@@ -113,8 +113,30 @@ export default async function ProductPage({
             >
               {audienceLabel(p.audience)}
             </Link>
+            {p.wholesale_only && (
+              <span className="text-[11px] font-bold bg-turmeric text-white rounded-full px-2 py-0.5">
+                Wholesale only
+              </span>
+            )}
           </div>
           <h1 className="display text-2xl sm:text-3xl font-bold mt-1">{p.title}</h1>
+          {p.colors && p.colors.length > 0 && (
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className="text-sm text-soft">Colours:</span>
+              {p.colors.map((c) => (
+                <span
+                  key={c}
+                  className="inline-flex items-center gap-1 text-sm border border-line rounded-full px-2 py-0.5"
+                >
+                  <span
+                    className="h-3 w-3 rounded-full border border-black/10"
+                    style={{ backgroundColor: colorHex(c) }}
+                  />
+                  {c}
+                </span>
+              ))}
+            </div>
+          )}
           <p className="mt-3">
             <span className="tag-price !text-lg !px-4 !py-1">
               {formatLKR(p.price)}

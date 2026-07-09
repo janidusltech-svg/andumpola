@@ -36,6 +36,33 @@ export function shopModeLabel(m?: string | null) {
   return SHOP_MODES.find((x) => x.value === m)?.label ?? "Online & Physical";
 }
 
+// Common clothing colours with a swatch hex for the dot
+export const COLORS: { name: string; hex: string }[] = [
+  { name: "Black", hex: "#1b1720" },
+  { name: "White", hex: "#ffffff" },
+  { name: "Grey", hex: "#9ca3af" },
+  { name: "Red", hex: "#dc2626" },
+  { name: "Maroon", hex: "#7f1d1d" },
+  { name: "Pink", hex: "#ec4899" },
+  { name: "Orange", hex: "#f97316" },
+  { name: "Yellow", hex: "#eab308" },
+  { name: "Green", hex: "#16a34a" },
+  { name: "Blue", hex: "#2563eb" },
+  { name: "Navy Blue", hex: "#1e3a8a" },
+  { name: "Purple", hex: "#7c3aed" },
+  { name: "Brown", hex: "#92400e" },
+  { name: "Beige", hex: "#e7d3b3" },
+  { name: "Gold", hex: "#d4af37" },
+  { name: "Silver", hex: "#c0c0c0" },
+];
+
+export function colorHex(name: string): string {
+  return (
+    COLORS.find((c) => c.name.toLowerCase() === name.toLowerCase())?.hex ||
+    "#c4265e"
+  );
+}
+
 export type Shop = {
   id: string;
   name: string;
@@ -65,6 +92,8 @@ export type Product = {
   description: string | null;
   price: number;
   audience: "men" | "women" | "kids" | "unisex";
+  colors?: string[];
+  wholesale_only?: boolean;
   sizes: Record<string, number>;
   images: string[];
   is_available: boolean;

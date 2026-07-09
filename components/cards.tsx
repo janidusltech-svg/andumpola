@@ -1,6 +1,6 @@
 // components/cards.tsx
 import Link from "next/link";
-import { Product, Shop, formatLKR } from "@/lib/types";
+import { Product, Shop, formatLKR, colorHex } from "@/lib/types";
 import SaveButton from "@/components/SaveButton";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -32,12 +32,34 @@ export function ProductCard({ product }: { product: Product }) {
               {product.images.length}
             </span>
           )}
+          {product.wholesale_only && (
+            <span className="absolute top-2 left-2 bg-turmeric text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+              Wholesale only
+            </span>
+          )}
         </div>
         <div className="p-3.5">
           <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem] mb-2">
             {product.title}
           </p>
           <span className="tag-price">{formatLKR(product.price)}</span>
+          {product.colors && product.colors.length > 0 && (
+            <div className="flex items-center gap-1 mt-2">
+              {product.colors.slice(0, 5).map((c) => (
+                <span
+                  key={c}
+                  title={c}
+                  className="h-3 w-3 rounded-full border border-black/10"
+                  style={{ backgroundColor: colorHex(c) }}
+                />
+              ))}
+              {product.colors.length > 5 && (
+                <span className="text-[10px] text-soft">
+                  +{product.colors.length - 5}
+                </span>
+              )}
+            </div>
+          )}
           <p className="text-xs text-soft truncate mt-2 min-h-[1rem]">
             {product.shops
               ? `${product.shops.name}${

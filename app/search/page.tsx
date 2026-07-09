@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { supabasePublic } from "@/lib/supabase/public";
-import { Category, Product } from "@/lib/types";
+import { Category, Product, COLORS } from "@/lib/types";
 import { ProductCard } from "@/components/cards";
 import SearchBar from "@/components/SearchBar";
 import CategoryPicker from "@/components/CategoryPicker";
@@ -19,9 +19,10 @@ export default async function SearchPage({
     province?: string;
     district?: string;
     audience?: string;
+    color?: string;
   }>;
 }) {
-  const { q, category, province, district, audience } = await searchParams;
+  const { q, category, province, district, audience, color } = await searchParams;
   const supabase = supabasePublic();
 
   const { data: categories } = await supabase
@@ -54,6 +55,7 @@ export default async function SearchPage({
   }
   if (category) query = query.eq("categories.slug", category);
   if (audience) query = query.eq("audience", audience);
+  if (color) query = query.contains("colors", [color]);
   if (shopIds) {
     // no matching shops in that area → empty result
     query = query.in("shop_id", shopIds.length ? shopIds : ["none"]);
@@ -74,6 +76,7 @@ export default async function SearchPage({
       province,
       district,
       audience,
+      color,
       ...next,
     };
     const parts = Object.entries(merged)
@@ -156,13 +159,47 @@ export default async function SearchPage({
         )}
       </div>
 
+      {/* Colour filter */}
+      <div className="mb-4 rounded-xl bg-white border border-line p-4">
+        <p className="text-sm font-semibold mb-2">Filter by colour</p>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={qs({ color: undefined })}
+            className={`rounded-full px-3 py-1.5 text-sm border ${
+              !color
+                ? "bg-berry text-white border-berry"
+                : "bg-white border-line hover:border-berry"
+            }`}
+          >
+            All colours
+          </Link>
+          {COLORS.map((c) => (
+            <Link
+              key={c.name}
+              href={qs({ color: c.name })}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm border ${
+                color === c.name
+                  ? "bg-ink text-white border-ink"
+                  : "bg-white border-line hover:border-berry"
+              }`}
+            >
+              <span
+                className="h-3 w-3 rounded-full border border-black/10"
+                style={{ backgroundColor: c.hex }}
+              />
+              {c.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Category filter */}
       <div className="mb-8">
         <CategoryPicker
           categories={(categories as Category[]) ?? []}
           activeSlug={category}
           activeAudience={audience}
-          baseParams={{ q, province, district }}
+          baseParams={{ q, province, district, color }}
         />
       </div>
 
