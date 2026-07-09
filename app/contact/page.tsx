@@ -15,17 +15,17 @@ export default function ContactPage() {
         <div className="rounded-xl bg-white border border-line p-6">
           <p className="text-sm text-soft">Email</p>
           <a
-            href="mailto:hello@andumpola.lk"
+            href="mailto:janidusltech@gmail.com"
             className="display text-lg font-bold text-berry"
           >
-            hello@andumpola.lk
+            janidusltech@gmail.com
           </a>
         </div>
 
         <div className="rounded-xl bg-white border border-line p-6">
           <p className="text-sm text-soft">WhatsApp</p>
           <a
-            href="https://wa.me/94770000000"
+            href="https://wa.me/94772453769"
             target="_blank"
             rel="noopener noreferrer"
             className="display text-lg font-bold text-leaf"
@@ -33,7 +33,7 @@ export default function ContactPage() {
             Chat on WhatsApp
           </a>
           <p className="text-xs text-soft mt-1">
-            Replace with your real support number.
+            Support: 077 245 3769
           </p>
         </div>
 

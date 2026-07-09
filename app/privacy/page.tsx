@@ -49,7 +49,7 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title="7. Contact">
-          For any privacy questions, contact hello@andumpola.lk.
+          For any privacy questions, contact janidusltech@gmail.com.
         </Section>
 
         <p className="text-soft">

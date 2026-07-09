@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { sendOrderNotification } from "@/lib/notify";
 
 export async function POST(req: Request) {
   try {
@@ -133,6 +134,38 @@ export async function POST(req: Request) {
 
     if (oErr) {
       return NextResponse.json({ error: oErr.message }, { status: 500 });
+    }
+
+    // Notify the shop owner by email (fire-and-forget; never blocks the order)
+    try {
+      const { data: shopRow } = await supabase
+        .from("shops")
+        .select("name, owner_id")
+        .eq("id", product.shop_id)
+        .single();
+      if (shopRow?.owner_id) {
+        const { data: ownerUser } = await supabase.auth.admin.getUserById(
+          shopRow.owner_id
+        );
+        const ownerEmail = ownerUser?.user?.email;
+        if (ownerEmail) {
+          // don't await fully blocking — but in serverless we should await
+          await sendOrderNotification({
+            toEmail: ownerEmail,
+            shopName: shopRow.name,
+            orderRef: order.order_ref,
+            productTitle: product.title,
+            size: size.trim(),
+            quantity: qty,
+            total: `Rs ${total.toLocaleString("en-LK")}`,
+            customerName: customer_name.trim(),
+            customerPhone: customer_phone.trim(),
+            customerAddress: customer_address.trim(),
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Order notification failed (order still placed):", e);
     }
 
     return NextResponse.json({ order_ref: order.order_ref });

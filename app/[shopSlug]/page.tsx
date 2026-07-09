@@ -6,6 +6,8 @@ import { Product, Shop } from "@/lib/types";
 import { ProductCard } from "@/components/cards";
 import ShareButton from "@/components/ShareButton";
 import ShopMap from "@/components/ShopMap";
+import Stars from "@/components/Stars";
+import ReviewForm from "@/components/ReviewForm";
 
 export const revalidate = 60;
 
@@ -58,6 +60,19 @@ export default async function ShopPage({
   if (!shop) notFound();
   const s = shop as Shop;
 
+  const { data: reviews } = await supabase
+    .from("reviews")
+    .select("id, rating, comment, created_at, profiles(full_name)")
+    .eq("shop_id", s.id)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  const reviewCount = reviews?.length ?? 0;
+  const avgRating =
+    reviewCount > 0
+      ? reviews!.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      : 0;
+
   const { data: products } = await supabase
     .from("products")
     .select("*, shops(name, slug, city), categories(name, slug)")
@@ -78,20 +93,26 @@ export default async function ShopPage({
     : all;
 
   return (
-    <div>
-      {/* Banner */}
-      <div className="h-40 sm:h-56 bg-berry/15">
-        {s.banner_url && (
+    <div className="mx-auto max-w-6xl px-4">
+      {/* Banner — contained, 3:1 ratio like the cropper, rounded */}
+      <div className="mt-4 rounded-2xl overflow-hidden bg-berry/10 aspect-[3/1] max-h-64">
+        {s.banner_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={s.banner_url}
-            alt=""
+            alt={s.name}
             className="h-full w-full object-cover"
           />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center">
+            <span className="display text-3xl font-bold text-berry/40">
+              {s.name}
+            </span>
+          </div>
         )}
       </div>
 
-      <div className="mx-auto max-w-6xl px-4">
+      <div>
         {/* Shop header */}
         <div className="flex items-end gap-4 -mt-10 mb-6">
           <div className="h-24 w-24 rounded-xl border-4 border-sand bg-white overflow-hidden shadow shrink-0 flex items-center justify-center p-1.5">
@@ -123,6 +144,13 @@ export default async function ShopPage({
                 .filter(Boolean)
                 .join(" · ") || "Sri Lanka"}
             </p>
+            {reviewCount > 0 && (
+              <p className="text-sm mt-0.5 flex items-center gap-1.5">
+                <Stars rating={avgRating} size="text-sm" />
+                <span className="font-semibold">{avgRating.toFixed(1)}</span>
+                <span className="text-soft">({reviewCount} review{reviewCount > 1 ? "s" : ""})</span>
+              </p>
+            )}
           </div>
           <div className="pb-1 hidden sm:block">
             <ShareButton
@@ -201,16 +229,70 @@ export default async function ShopPage({
 
         {/* Products */}
         {visible.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-12">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
             {visible.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         ) : (
-          <p className="text-soft bg-white border border-line rounded-lg p-8 text-center mb-12">
+          <p className="text-soft bg-white border border-line rounded-lg p-8 text-center mb-8">
             This shop has not added products yet. Check back soon!
           </p>
         )}
+
+        {/* Reviews */}
+        <section className="pb-12 max-w-2xl">
+          <h2 className="display text-xl sm:text-2xl font-bold mb-4">
+            Reviews
+            {reviewCount > 0 && (
+              <span className="text-soft font-normal text-base ml-2">
+                {avgRating.toFixed(1)} ★ · {reviewCount}
+              </span>
+            )}
+          </h2>
+
+          <div className="mb-5">
+            <ReviewForm shopId={s.id} />
+          </div>
+
+          {reviewCount > 0 ? (
+            <div className="space-y-3">
+              {reviews!.map((r) => {
+                const reviewer = Array.isArray(r.profiles)
+                  ? r.profiles[0]
+                  : r.profiles;
+                return (
+                  <div
+                    key={r.id}
+                    className="rounded-xl bg-white border border-line p-4"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="font-semibold text-sm truncate">
+                        {(reviewer as { full_name?: string })?.full_name ||
+                          "Customer"}
+                      </p>
+                      <Stars rating={r.rating} size="text-sm" />
+                    </div>
+                    {r.comment && (
+                      <p className="text-sm text-soft">{r.comment}</p>
+                    )}
+                    <p className="text-[11px] text-soft mt-1.5">
+                      {new Date(r.created_at).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-soft">
+              No reviews yet — be the first to review this shop.
+            </p>
+          )}
+        </section>
       </div>
     </div>
   );
