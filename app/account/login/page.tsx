@@ -87,7 +87,7 @@ function LoginInner() {
           <span className="text-xs text-soft">or</span>
           <span className="h-px bg-line flex-1" />
         </div>
-        <GoogleButton accountType="customer" next={next} />
+        <GoogleButton next={next} />
 
         <p className="text-sm text-center">
           <Link href="/forgot-password" className="text-soft hover:text-berry">

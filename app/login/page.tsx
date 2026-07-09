@@ -74,7 +74,6 @@ function LoginForm() {
           <span className="h-px bg-line flex-1" />
         </div>
         <GoogleButton
-          accountType="shop_owner"
           next={params.get("next") || "/dashboard"}
         />
 

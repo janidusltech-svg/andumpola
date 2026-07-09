@@ -91,7 +91,6 @@ function SignupInner() {
           <span className="h-px bg-line flex-1" />
         </div>
         <GoogleButton
-          accountType="customer"
           next={next || "/"}
           label="Sign up with Google"
         />

@@ -91,7 +91,7 @@ export default function SignupPage() {
           <span className="text-xs text-soft">or</span>
           <span className="h-px bg-line flex-1" />
         </div>
-        <GoogleButton accountType="shop_owner" next="/dashboard" label="Sign up with Google" />
+        <GoogleButton label="Sign up with Google" />
 
         <p className="text-sm text-soft text-center">
           Already have a shop?{" "}
