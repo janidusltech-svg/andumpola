@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s",
   },
   description:
-    "Browse hundreds of Sri Lankan clothing shops in one place. Frocks, sarees, shirts and more — contact shops directly on WhatsApp.",
+    "Browse hundreds of Sri Lankan shops in one place — clothing, furniture and electronics. Frocks, sarees, sofas, phones and more. Contact shops directly on WhatsApp.",
   openGraph: {
     siteName: "AndumPola",
     type: "website",
