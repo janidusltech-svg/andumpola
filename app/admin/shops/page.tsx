@@ -86,6 +86,9 @@ export default async function AdminShopsPage({
                         {s.name}
                       </Link>
                       <StatusBadge status={s.status} />
+                      <span className="text-[11px] font-semibold rounded-full bg-sand border border-line px-2 py-0.5 capitalize">
+                        {(s.vertical as string) ?? "clothing"}
+                      </span>
                     </div>
                     <p className="text-sm text-soft">
                       {s.city || "—"} · {productCount} products · {orderCount}{" "}

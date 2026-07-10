@@ -17,7 +17,7 @@ export default async function EditProductPage({
 
   const { data: shop } = await supabase
     .from("shops")
-    .select("id")
+    .select("id, plan, vertical")
     .eq("owner_id", user!.id)
     .maybeSingle();
   if (!shop) redirect("/dashboard");
@@ -34,6 +34,7 @@ export default async function EditProductPage({
   const { data: categories } = await supabase
     .from("categories")
     .select("*")
+    .eq("vertical", (shop as { vertical?: string }).vertical ?? "clothing")
     .order("sort_order");
 
   return (
@@ -42,6 +43,8 @@ export default async function EditProductPage({
       <ProductForm
         categories={(categories ?? []) as Category[]}
         existing={product as Product}
+        photoLimit={shop.plan === "pro" ? 10 : 3}
+        vertical={(shop as { vertical?: string }).vertical ?? "clothing"}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/upload";
+import { verticalNeedsApproval, getVertical, VERTICAL_LIST } from "@/lib/verticals";
 import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
 import CroppedFileField from "@/components/CroppedFileField";
 import LocationPicker from "@/components/LocationPicker";
@@ -39,6 +40,7 @@ export default function CreateShopForm() {
     address: "",
     shop_type: "retail",
     shop_mode: "both",
+    vertical: "clothing" as "clothing" | "furniture" | "electronics",
   });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     null
@@ -87,11 +89,14 @@ export default function CreateShopForm() {
         address: f.address.trim() || null,
         shop_type: f.shop_type,
         shop_mode: f.shop_mode,
+        vertical: f.vertical,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
         logo_url,
         banner_url,
-        status: "pending",
+        // Clothing goes live immediately; furniture & electronics wait for
+        // admin approval.
+        status: verticalNeedsApproval(f.vertical) ? "pending" : "active",
       });
       if (insErr) {
         if (insErr.code === "23505")
@@ -111,6 +116,43 @@ export default function CreateShopForm() {
 
   return (
     <div className="bg-white border border-line rounded-xl p-6 space-y-4 max-w-2xl">
+      {/* What do you sell? — picks the vertical */}
+      <div>
+        <span className="text-sm font-medium">What do you sell? *</span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+          {VERTICAL_LIST.map((v) => {
+            const on = f.vertical === v.key;
+            return (
+              <button
+                key={v.key}
+                type="button"
+                onClick={() => setF({ ...f, vertical: v.key })}
+                className={`rounded-xl border-2 p-3 text-left transition-colors ${
+                  on
+                    ? "border-berry bg-berry/5"
+                    : "border-line hover:border-berry"
+                }`}
+              >
+                <span className="text-2xl">{v.emoji}</span>
+                <span className="block font-semibold mt-1">{v.label}</span>
+                {v.needsApproval && (
+                  <span className="block text-[11px] text-soft mt-0.5">
+                    Needs approval
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {verticalNeedsApproval(f.vertical) && (
+          <p className="text-xs text-ink bg-turmeric/10 border border-turmeric/30 rounded-lg px-3 py-2 mt-2">
+            {getVertical(f.vertical).label} shops are reviewed before going
+            live. You can set everything up now — we&apos;ll approve your shop
+            shortly after.
+          </p>
+        )}
+      </div>
+
       <Field
         label="Shop name *"
         value={f.name}

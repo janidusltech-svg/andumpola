@@ -20,15 +20,18 @@ export default async function SearchPage({
     district?: string;
     audience?: string;
     color?: string;
+    vertical?: string;
   }>;
 }) {
-  const { q, category, province, district, audience, color } = await searchParams;
+  const { q, category, province, district, audience, color, vertical } = await searchParams;
   const supabase = supabasePublic();
 
-  const { data: categories } = await supabase
+  let categoriesQuery = supabase
     .from("categories")
     .select("*")
     .order("sort_order");
+  if (vertical) categoriesQuery = categoriesQuery.eq("vertical", vertical);
+  const { data: categories } = await categoriesQuery;
 
   // If filtering by province/district, first find matching shop ids
   let shopIds: string[] | null = null;
@@ -55,6 +58,7 @@ export default async function SearchPage({
   }
   if (category) query = query.eq("categories.slug", category);
   if (audience) query = query.eq("audience", audience);
+  if (vertical) query = query.eq("vertical", vertical);
   if (color) query = query.contains("colors", [color]);
   if (shopIds) {
     // no matching shops in that area → empty result
@@ -199,7 +203,8 @@ export default async function SearchPage({
           categories={(categories as Category[]) ?? []}
           activeSlug={category}
           activeAudience={audience}
-          baseParams={{ q, province, district, color }}
+          baseParams={{ q, province, district, color, vertical }}
+          showAudience={!vertical || vertical === "clothing"}
         />
       </div>
 

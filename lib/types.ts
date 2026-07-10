@@ -85,6 +85,8 @@ export type Shop = {
   tiktok_url?: string | null;
   business_hours?: string | null;
   announcement?: string | null;
+  vertical?: "clothing" | "furniture" | "electronics";
+  status?: string;
   enable_online_orders: boolean;
   created_at: string;
 };
@@ -97,6 +99,7 @@ export type Product = {
   description: string | null;
   price: number;
   audience: "men" | "women" | "kids" | "unisex";
+  vertical?: "clothing" | "furniture" | "electronics";
   colors?: string[];
   wholesale_only?: boolean;
   is_featured?: boolean;

@@ -13,7 +13,7 @@ export default async function NewProductPage() {
 
   const { data: shop } = await supabase
     .from("shops")
-    .select("id, plan")
+    .select("id, plan, vertical")
     .eq("owner_id", user!.id)
     .maybeSingle();
 
@@ -45,12 +45,17 @@ export default async function NewProductPage() {
   const { data: categories } = await supabase
     .from("categories")
     .select("*")
+    .eq("vertical", (shop as { vertical?: string }).vertical ?? "clothing")
     .order("sort_order");
 
   return (
     <div>
       <h1 className="display text-2xl font-bold mb-6">Add product</h1>
-      <ProductForm categories={(categories ?? []) as Category[]} />
+      <ProductForm
+        categories={(categories ?? []) as Category[]}
+        photoLimit={shop.plan === "pro" ? 10 : 3}
+        vertical={(shop as { vertical?: string }).vertical ?? "clothing"}
+      />
     </div>
   );
 }

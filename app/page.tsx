@@ -5,6 +5,7 @@ import { supabasePublic } from "@/lib/supabase/public";
 import { Category, Product, Shop } from "@/lib/types";
 import { ProductCard, ShopCard } from "@/components/cards";
 import SearchBar from "@/components/SearchBar";
+import { VERTICAL_LIST } from "@/lib/verticals";
 import CategoryPicker from "@/components/CategoryPicker";
 
 export const revalidate = 60;
@@ -43,10 +44,10 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero */}
-      <section className="text-center pt-16 pb-10">
-        <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-berry bg-rose-soft px-3.5 py-1.5 rounded-full mb-6">
+      <section className="text-center pt-8 sm:pt-16 pb-6 sm:pb-10">
+        <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-berry bg-rose-soft px-3.5 py-1.5 rounded-full mb-4 sm:mb-6">
           <span className="text-[8px]">●</span> Sri Lanka&apos;s online clothing
           market
         </span>
@@ -55,21 +56,39 @@ export default async function HomePage() {
           <br />
           One <span className="text-berry">pola</span>.
         </h1>
-        <p className="mt-5 text-soft text-lg max-w-lg mx-auto">
+        <p className="mt-4 sm:mt-5 text-soft text-base sm:text-lg max-w-lg mx-auto">
           Browse hundreds of local shops, find what you love, and message them
           directly. No middleman, no markup.
         </p>
-        <div className="mt-8 flex justify-center">
+        <div className="mt-6 sm:mt-8 flex justify-center">
           <Suspense>
             <SearchBar big />
           </Suspense>
         </div>
 
         {/* Trust stats */}
-        <div className="mt-8 flex gap-9 justify-center">
+        <div className="mt-6 sm:mt-8 flex gap-9 justify-center">
           <Stat value={`${shopCount ?? 0}+`} label="Shops" />
           <Stat value={`${productCount ?? 0}+`} label="Products" />
           <Stat value="9" label="Provinces" />
+        </div>
+      </section>
+
+      {/* Shop by marketplace (verticals) — compact buttons */}
+      <section className="pb-6">
+        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap max-w-3xl mx-auto">
+          {VERTICAL_LIST.map((v) => (
+            <Link
+              key={v.key}
+              href={`/${v.slug}`}
+              className="group inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 hover:border-berry hover:bg-berry/5 transition-colors"
+            >
+              <span className="text-lg">{v.emoji}</span>
+              <span className="font-semibold text-sm group-hover:text-berry">
+                {v.label}
+              </span>
+            </Link>
+          ))}
         </div>
       </section>
 

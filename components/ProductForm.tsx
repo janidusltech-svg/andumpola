@@ -13,10 +13,12 @@ export default function ProductForm({
   categories,
   existing,
   photoLimit = 3,
+  vertical = "clothing",
 }: {
   categories: Category[];
   existing?: Product;
   photoLimit?: number;
+  vertical?: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -70,7 +72,7 @@ export default function ProductForm({
 
       const { data: shop } = await supabase
         .from("shops")
-        .select("id")
+        .select("id, vertical")
         .eq("owner_id", user.id)
         .single();
       if (!shop) throw new Error("Create your shop first.");
@@ -91,6 +93,7 @@ export default function ProductForm({
 
       const payload = {
         shop_id: shop.id,
+        vertical: (shop as { vertical?: string }).vertical ?? "clothing",
         title: f.title.trim(),
         description: f.description.trim() || null,
         price: parseFloat(f.price),
@@ -162,30 +165,32 @@ export default function ProductForm({
         </label>
       </div>
 
-      {/* Audience: who is this for? */}
-      <div>
-        <span className="text-sm font-medium">Who is it for? *</span>
-        <div className="mt-1.5 flex gap-2 flex-wrap">
-          {AUDIENCES.map((a) => (
-            <button
-              key={a.value}
-              type="button"
-              onClick={() => setF({ ...f, audience: a.value })}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold border transition-colors ${
-                f.audience === a.value
-                  ? "bg-ink text-white border-ink"
-                  : "bg-white border-line hover:border-berry hover:text-berry"
-              }`}
-            >
-              {a.emoji} {a.label}
-            </button>
-          ))}
+      {/* Audience: who is this for? (clothing only) */}
+      {vertical === "clothing" && (
+        <div>
+          <span className="text-sm font-medium">Who is it for? *</span>
+          <div className="mt-1.5 flex gap-2 flex-wrap">
+            {AUDIENCES.map((a) => (
+              <button
+                key={a.value}
+                type="button"
+                onClick={() => setF({ ...f, audience: a.value })}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold border transition-colors ${
+                  f.audience === a.value
+                    ? "bg-ink text-white border-ink"
+                    : "bg-white border-line hover:border-berry hover:text-berry"
+                }`}
+              >
+                {a.emoji} {a.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-soft mt-1">
+            Customers filter by Men / Women / Kids — pick the right one so your
+            product is found.
+          </p>
         </div>
-        <p className="text-xs text-soft mt-1">
-          Customers filter by Men / Women / Kids — pick the right one so your
-          product is found.
-        </p>
-      </div>
+      )}
 
       {/* Colours */}
       <div>
@@ -320,11 +325,19 @@ export default function ProductForm({
         />
       </label>
 
-      {/* Sizes + stock */}
+      {/* Sizes/variants + stock */}
       <div>
-        <span className="text-sm font-medium">Sizes & stock</span>
+        <span className="text-sm font-medium">
+          {vertical === "clothing"
+            ? "Sizes & stock"
+            : "Variants & stock (optional)"}
+        </span>
         <p className="text-xs text-soft mb-2">
-          e.g. S / M / L / XL / Free Size. Stock is how many you have.
+          {vertical === "clothing"
+            ? "e.g. S / M / L / XL / Free Size. Stock is how many you have."
+            : vertical === "furniture"
+            ? "e.g. Single / Double / Queen, or a colour/finish. Stock is how many you have."
+            : "e.g. 128GB / 256GB, or a colour. Stock is how many you have."}
         </p>
         <div className="space-y-2">
           {sizes.map((row, i) => (

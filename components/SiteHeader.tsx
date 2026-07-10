@@ -42,6 +42,18 @@ export default async function SiteHeader() {
             Shops
           </Link>
           <Link
+            href="/furniture"
+            className="hidden md:inline hover:text-berry px-1"
+          >
+            Furniture
+          </Link>
+          <Link
+            href="/electronics"
+            className="hidden md:inline hover:text-berry px-1"
+          >
+            Electronics
+          </Link>
+          <Link
             href="/search"
             className="hover:text-berry p-2 sm:p-0 sm:px-1"
             aria-label="Search"

@@ -11,6 +11,7 @@ export default async function ShopsPage() {
   const { data: shops } = await supabase
     .from("shops")
     .select("*")
+    .eq("status", "active")
     .order("created_at", { ascending: false });
 
   return (

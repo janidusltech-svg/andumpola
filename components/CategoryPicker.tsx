@@ -10,12 +10,14 @@ export default function CategoryPicker({
   activeSlug,
   activeAudience,
   baseParams = {},
+  showAudience = true,
 }: {
   categories: Category[];
   activeSlug?: string;
   activeAudience?: string; // from URL on search page
   // other params to preserve (q, province, district). category+audience set here.
   baseParams?: Record<string, string | undefined>;
+  showAudience?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [search, setSearch] = useState("");
@@ -60,22 +62,24 @@ export default function CategoryPicker({
 
   return (
     <div>
-      {/* Audience tabs */}
-      <div className="flex gap-2 justify-center mb-4 flex-wrap">
-        <TabButton
-          active={tab === "all"}
-          onClick={() => setTab("all")}
-          label="All"
-        />
-        {AUDIENCES.filter((a) => a.value !== "unisex").map((a) => (
+      {/* Audience tabs (clothing only) */}
+      {showAudience && (
+        <div className="flex gap-2 justify-center mb-4 flex-wrap">
           <TabButton
-            key={a.value}
-            active={tab === a.value}
-            onClick={() => setTab(a.value)}
-            label={`${a.emoji} ${a.label}`}
+            active={tab === "all"}
+            onClick={() => setTab("all")}
+            label="All"
           />
-        ))}
-      </div>
+          {AUDIENCES.filter((a) => a.value !== "unisex").map((a) => (
+            <TabButton
+              key={a.value}
+              active={tab === a.value}
+              onClick={() => setTab(a.value)}
+              label={`${a.emoji} ${a.label}`}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Category search */}
       <div className="mb-3 max-w-xs mx-auto">
