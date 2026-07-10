@@ -1,6 +1,7 @@
 // components/cards.tsx
 import Link from "next/link";
 import { Product, Shop, formatLKR, colorHex } from "@/lib/types";
+import { getVertical } from "@/lib/verticals";
 import SaveButton from "@/components/SaveButton";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -35,6 +36,11 @@ export function ProductCard({ product }: { product: Product }) {
           {product.wholesale_only && (
             <span className="absolute top-2 left-2 bg-turmeric text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
               Wholesale only
+            </span>
+          )}
+          {product.is_featured && !product.wholesale_only && (
+            <span className="absolute top-2 left-2 bg-ink text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+              ⭐ Featured
             </span>
           )}
         </div>
@@ -96,15 +102,22 @@ export function ShopCard({ shop }: { shop: Shop }) {
       </div>
       <div className="px-4 pb-4 pt-0 relative">
         {/* Logo floats in front of the banner */}
-        <div className="h-14 w-14 rounded-2xl border-[3px] border-white bg-white overflow-hidden shrink-0 shadow-md flex items-center justify-center p-1 -mt-8 relative z-10">
-          {shop.logo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={shop.logo_url} alt={shop.name} className="h-full w-full object-contain" />
-          ) : (
-            <span className="display font-bold text-berry text-lg">
-              {shop.name.charAt(0)}
-            </span>
-          )}
+        <div className="flex items-start justify-between gap-2">
+          <div className="h-14 w-14 rounded-2xl border-[3px] border-white bg-white overflow-hidden shrink-0 shadow-md flex items-center justify-center p-1 -mt-8 relative z-10">
+            {shop.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={shop.logo_url} alt={shop.name} className="h-full w-full object-contain" />
+            ) : (
+              <span className="display font-bold text-berry text-lg">
+                {shop.name.charAt(0)}
+              </span>
+            )}
+          </div>
+          {/* Category badge */}
+          <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-sand border border-line px-2 py-0.5 text-[11px] font-medium text-soft shrink-0">
+            <span>{getVertical(shop.vertical).emoji}</span>
+            {getVertical(shop.vertical).label}
+          </span>
         </div>
         <div className="mt-2 min-w-0">
           <p className="font-semibold truncate group-hover:text-berry">
