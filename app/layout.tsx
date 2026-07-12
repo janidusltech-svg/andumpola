@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   ),
   title: {
-    default: "AndumPola — ඇඳුම්පොළ | Sri Lanka's Online Clothing Market",
+    default: "AndumPola — ඇඳුම්පොළ | Sri Lanka's Online Marketplace",
     template: "%s",
   },
   description:
@@ -31,9 +31,17 @@ export const metadata: Metadata = {
     siteName: "AndumPola",
     type: "website",
     locale: "en_LK",
-    title: "AndumPola — Sri Lanka's Online Clothing Market",
+    title: "AndumPola — The pola, now digital.",
     description:
-      "Every clothing shop. One pola. Browse Sri Lankan shops and order directly.",
+      "Every Sri Lankan shop. One place. Clothing, furniture and electronics — browse and order directly.",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
   twitter: {
     card: "summary_large_image",

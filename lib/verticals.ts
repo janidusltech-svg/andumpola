@@ -23,7 +23,7 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     label: "Clothing",
     emoji: "👗",
     slug: "clothing",
-    tagline: "Every clothing shop. One pola.",
+    tagline: "Frocks, sarees, shirts and more from shops island-wide.",
     needsApproval: false, // open — as today
     hasAudience: true,
     categories: [

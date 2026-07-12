@@ -4,6 +4,7 @@ import { supabasePublic } from "@/lib/supabase/public";
 import { Shop, Product } from "@/lib/types";
 import { ShopCard, ProductCard } from "@/components/cards";
 import { getVertical, VerticalKey } from "@/lib/verticals";
+import BackButton from "@/components/BackButton";
 
 export default async function VerticalLanding({
   vertical,
@@ -40,9 +41,13 @@ export default async function VerticalLanding({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+      <div className="mb-2">
+        <BackButton label="Back" fallback="/" />
+      </div>
+
       {/* Hero */}
-      <div className="text-center py-8">
+      <div className="text-center py-6 sm:py-8">
         <span className="text-5xl">{v.emoji}</span>
         <h1 className="display text-3xl sm:text-5xl font-extrabold mt-3">
           {v.label}

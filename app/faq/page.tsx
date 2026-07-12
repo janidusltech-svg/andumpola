@@ -1,4 +1,5 @@
 // app/faq/page.tsx
+import BackButton from "@/components/BackButton";
 export const metadata = { title: "FAQ — AndumPola" };
 
 const FAQS = [
@@ -43,6 +44,9 @@ const FAQS = [
 export default function FAQPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mb-4">
+        <BackButton label="Back" fallback="/" />
+      </div>
       <h1 className="display text-3xl sm:text-4xl font-bold mb-2">
         Frequently asked questions
       </h1>

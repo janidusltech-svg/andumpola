@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Product } from "@/lib/types";
 import { ProductCard } from "@/components/cards";
 import SignOutButton from "@/components/SignOutButton";
+import BackButton from "@/components/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,9 @@ export default async function SavedPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mb-4">
+        <BackButton label="Back" fallback="/" />
+      </div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h1 className="display text-3xl font-bold">Saved products</h1>

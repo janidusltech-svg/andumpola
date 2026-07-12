@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabasePublic } from "@/lib/supabase/public";
 import { Product, formatLKR, audienceLabel, colorHex } from "@/lib/types";
+import BackButton from "@/components/BackButton";
 import ContactButtons from "@/components/ContactButtons";
 import OrderButton from "@/components/OrderButton";
 import SaveButton from "@/components/SaveButton";
@@ -77,9 +78,14 @@ export default async function ProductPage({
   const productUrl = `${baseUrl}/${shopSlug}/${p.id}`;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+      {/* Back */}
+      <div className="mb-3">
+        <BackButton label="Back" fallback={`/${shopSlug}`} />
+      </div>
+
       {/* Breadcrumb */}
-      <p className="text-sm text-soft mb-4">
+      <p className="text-sm text-soft mb-4 hidden sm:block">
         <Link href="/" className="hover:text-berry">
           Home
         </Link>{" "}

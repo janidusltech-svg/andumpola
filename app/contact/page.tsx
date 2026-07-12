@@ -1,11 +1,15 @@
 // app/contact/page.tsx
 import Link from "next/link";
+import BackButton from "@/components/BackButton";
 
 export const metadata = { title: "Contact — AndumPola" };
 
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
+      <div className="mb-4">
+        <BackButton label="Back" fallback="/" />
+      </div>
       <h1 className="display text-3xl sm:text-4xl font-bold mb-2">Contact us</h1>
       <p className="text-soft mb-8">
         Questions, feedback, or need help with your shop? Reach out.

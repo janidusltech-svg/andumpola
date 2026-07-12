@@ -48,17 +48,20 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="text-center pt-8 sm:pt-16 pb-6 sm:pb-10">
         <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-berry bg-rose-soft px-3.5 py-1.5 rounded-full mb-4 sm:mb-6">
-          <span className="text-[8px]">●</span> Sri Lanka&apos;s online clothing
-          market
+          <span className="text-[8px]">●</span> Sri Lanka&apos;s online
+          marketplace
         </span>
         <h1 className="display text-4xl sm:text-6xl font-extrabold leading-[1.05] sm:leading-[1.02] break-words">
-          Every clothing shop.
+          The <span className="text-berry">pola</span>,
           <br />
-          One <span className="text-berry">pola</span>.
+          now digital.
         </h1>
-        <p className="mt-4 sm:mt-5 text-soft text-base sm:text-lg max-w-lg mx-auto">
-          Browse hundreds of local shops, find what you love, and message them
-          directly. No middleman, no markup.
+        <p className="mt-3 sm:mt-4 display text-lg sm:text-2xl font-bold text-ink/80">
+          Every Sri Lankan shop. One place.
+        </p>
+        <p className="mt-3 sm:mt-4 text-soft text-base sm:text-lg max-w-xl mx-auto">
+          Clothing, furniture and electronics from shops across the island —
+          browse, message, and order directly. No middleman, no markup.
         </p>
         <div className="mt-6 sm:mt-8 flex justify-center">
           <Suspense>

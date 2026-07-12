@@ -1,9 +1,13 @@
 // app/terms/page.tsx
+import BackButton from "@/components/BackButton";
 export const metadata = { title: "Terms of Service — AndumPola" };
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mb-4">
+        <BackButton label="Back" fallback="/" />
+      </div>
       <h1 className="display text-3xl sm:text-4xl font-bold mb-2">Terms of Service</h1>
       <p className="text-soft mb-8">Last updated: {new Date().getFullYear()}</p>
 

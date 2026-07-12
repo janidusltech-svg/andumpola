@@ -1,9 +1,13 @@
 // app/privacy/page.tsx
+import BackButton from "@/components/BackButton";
 export const metadata = { title: "Privacy Policy — AndumPola" };
 
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mb-4">
+        <BackButton label="Back" fallback="/" />
+      </div>
       <h1 className="display text-3xl sm:text-4xl font-bold mb-2">Privacy Policy</h1>
       <p className="text-soft mb-8">Last updated: {new Date().getFullYear()}</p>
 

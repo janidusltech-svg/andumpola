@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/cards";
 import SearchBar from "@/components/SearchBar";
 import CategoryPicker from "@/components/CategoryPicker";
 import { PROVINCES } from "@/lib/lk-locations";
+import BackButton from "@/components/BackButton";
 
 export const metadata = { title: "Search — AndumPola" };
 
@@ -90,7 +91,10 @@ export default async function SearchPage({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+      <div className="mb-3">
+        <BackButton label="Back" fallback="/" />
+      </div>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between mb-6">
         <h1 className="display text-2xl sm:text-3xl font-bold">
           {q

@@ -24,12 +24,20 @@ export default async function SiteHeader() {
     <header className="sticky top-0 z-40 bg-paper/90 backdrop-blur border-b border-line">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 h-16 sm:h-[68px] flex items-center justify-between gap-2 sm:gap-5">
         {/* Logo */}
-        <Link href="/" className="leading-none shrink-0">
-          <span className="hidden sm:block text-[10px] tracking-wide text-berry font-semibold">
-            ඇඳුම්පොළ
-          </span>
-          <span className="display text-xl sm:text-2xl font-extrabold text-ink">
-            Andum<span className="text-berry">Pola</span>
+        <Link href="/" className="flex items-center gap-2 leading-none shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-mark.png"
+            alt=""
+            className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg"
+          />
+          <span>
+            <span className="hidden sm:block text-[10px] tracking-wide text-berry font-semibold">
+              ඇඳුම්පොළ
+            </span>
+            <span className="display text-xl sm:text-2xl font-extrabold text-ink">
+              Andum<span className="text-berry">Pola</span>
+            </span>
           </span>
         </Link>
 

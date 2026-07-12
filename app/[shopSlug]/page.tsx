@@ -8,6 +8,7 @@ import ShareButton from "@/components/ShareButton";
 import ShopMap from "@/components/ShopMap";
 import Stars from "@/components/Stars";
 import ReviewForm from "@/components/ReviewForm";
+import BackButton from "@/components/BackButton";
 
 export const revalidate = 60;
 
@@ -110,6 +111,11 @@ export default async function ShopPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4">
+      {/* Back */}
+      <div className="pt-4">
+        <BackButton label="Back" fallback="/shops" />
+      </div>
+
       {/* Announcement banner */}
       {s.announcement && (
         <div className="mt-4 rounded-xl bg-berry text-white px-4 py-2.5 text-sm font-medium text-center">
