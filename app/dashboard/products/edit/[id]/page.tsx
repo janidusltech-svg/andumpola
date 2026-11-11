@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Category, Product } from "@/lib/types";
 import ProductForm from "@/components/ProductForm";
+import { planInfo } from "@/lib/plan";
 
 export default async function EditProductPage({
   params,
@@ -43,7 +44,7 @@ export default async function EditProductPage({
       <ProductForm
         categories={(categories ?? []) as Category[]}
         existing={product as Product}
-        photoLimit={shop.plan === "pro" ? 10 : 3}
+        photoLimit={planInfo(shop.plan).photosPerProduct}
         vertical={(shop as { vertical?: string }).vertical ?? "clothing"}
       />
     </div>

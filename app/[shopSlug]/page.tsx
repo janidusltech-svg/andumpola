@@ -10,6 +10,7 @@ import Stars from "@/components/Stars";
 import ReviewForm from "@/components/ReviewForm";
 import BackButton from "@/components/BackButton";
 import TrackView from "@/components/TrackView";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const revalidate = 60;
 
@@ -73,8 +74,23 @@ export default async function ShopPage({
     .eq("slug", shopSlug)
     .single();
 
-  if (!shop) notFound();
-  const s = shop as Shop;
+  // Closed (plan ended) or suspended shops get a friendly page, not a 404
+  let closed: { name: string; logo_url: string | null; status: string } | null =
+    null;
+  if (!shop) {
+    const { data: hidden } = await supabaseAdmin()
+      .from("shops")
+      .select("name, logo_url, status")
+      .eq("slug", shopSlug)
+      .maybeSingle();
+    if (!hidden || hidden.status === "pending") notFound();
+    closed = hidden;
+  } else if (shop.status && shop.status !== "active") {
+    if (shop.status === "pending") notFound();
+    closed = shop;
+  }
+  if (closed) return <ClosedShop shop={closed} />;
+  const s = shop as Shop & { plan?: string };
 
   const { data: reviews } = await supabase
     .from("reviews")
@@ -163,6 +179,11 @@ export default async function ShopPage({
           <div className="pb-1 min-w-0 flex-1">
             <h1 className="display text-2xl sm:text-3xl font-bold break-words">
               {s.name}
+              {s.plan === "ultra" && (
+                <span className="ml-2 align-middle inline-flex items-center gap-1 rounded-full bg-berry text-white text-xs font-semibold px-2 py-0.5">
+                  ✓ Verified
+                </span>
+              )}
             </h1>
             <p className="text-sm text-soft">
               {[
@@ -411,6 +432,37 @@ export default async function ShopPage({
           )}
         </section>
       </div>
+    </div>
+  );
+}
+
+function ClosedShop({
+  shop,
+}: {
+  shop: { name: string; logo_url: string | null; status: string };
+}) {
+  return (
+    <div className="mx-auto max-w-md px-4 py-20 text-center">
+      <div className="mx-auto h-20 w-20 rounded-2xl bg-white border border-line overflow-hidden flex items-center justify-center">
+        {shop.logo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={shop.logo_url} alt="" className="h-full w-full object-contain" />
+        ) : (
+          <span className="display text-3xl font-bold text-berry">
+            {shop.name.charAt(0)}
+          </span>
+        )}
+      </div>
+      <h1 className="display text-2xl font-bold mt-5">{shop.name}</h1>
+      <p className="text-soft mt-2">
+        This shop is temporarily closed. Please check back soon.
+      </p>
+      <Link
+        href="/shops"
+        className="inline-block mt-6 rounded-lg bg-berry text-white font-semibold px-5 py-2.5"
+      >
+        Browse other shops
+      </Link>
     </div>
   );
 }

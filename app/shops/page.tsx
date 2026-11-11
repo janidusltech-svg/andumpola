@@ -3,17 +3,19 @@ import { supabasePublic } from "@/lib/supabase/public";
 import { Shop } from "@/lib/types";
 import { ShopCard } from "@/components/cards";
 import BackButton from "@/components/BackButton";
+import { byPlanRank } from "@/lib/plan";
 
 export const revalidate = 60;
 export const metadata = { title: "All Shops — AndumPola" };
 
 export default async function ShopsPage() {
   const supabase = supabasePublic();
-  const { data: shops } = await supabase
+  const { data: rawShops } = await supabase
     .from("shops")
     .select("*")
     .eq("status", "active")
     .order("created_at", { ascending: false });
+  const shops = byPlanRank(rawShops ?? [], (s) => s.plan);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">

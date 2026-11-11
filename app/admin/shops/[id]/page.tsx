@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { formatLKR } from "@/lib/types";
-import { shopExpiry, fmtDate } from "@/lib/plan";
+import { shopExpiry, fmtDate, planInfo } from "@/lib/plan";
 import PlanControls from "@/components/admin/PlanControls";
 import ShopStatusButtons from "@/components/admin/ShopStatusButtons";
 
@@ -57,6 +57,14 @@ export default async function AdminShopDetail({
       .reduce((s, p) => s + Number(p.amount), 0) ?? 0;
   const wa = String(shop.whatsapp || shop.phone || "").replace(/\D/g, "");
   const waNum = wa.startsWith("0") ? `94${wa.slice(1)}` : wa;
+  const price = planInfo(shop.plan === "trial" ? "pro" : shop.plan).price;
+  const reminder = encodeURIComponent(
+    exp.closed
+      ? `Hi ${shop.name} 👋 Your AndumPola shop is closed because your plan ended. Renew from your dashboard (Subscription) and it opens again right away: https://www.andumpola.lk/dashboard/subscription`
+      : exp.expired
+      ? `Hi ${shop.name} 👋 Your AndumPola ${exp.label} plan has ended. Your shop will close in ${exp.graceLeft} day(s) unless you renew. Plans start from Rs 500/month: https://www.andumpola.lk/dashboard/subscription`
+      : `Hi ${shop.name} 👋 Your AndumPola ${exp.label} plan ends on ${fmtDate(exp.endIso)} (${exp.daysLeft} day(s) left). Renew to keep your shop online — Rs ${price.toLocaleString()}/month: https://www.andumpola.lk/dashboard/subscription`
+  );
 
   return (
     <div className="max-w-3xl">
@@ -109,8 +117,22 @@ export default async function AdminShopDetail({
         </p>
         <p className="text-sm text-soft mt-1">
           {exp.expired ? "Ended" : "Ends"} {fmtDate(exp.endIso)}
-          {exp.expired && " — the shop can't take bank orders until renewed."}
+          {exp.closed
+            ? " — shop is CLOSED to customers until renewed."
+            : exp.expired
+            ? ` — shop closes in ${exp.graceLeft} day(s) unless renewed.`
+            : ""}
         </p>
+        {waNum && (
+          <a
+            href={`https://wa.me/${waNum}?text=${reminder}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-3 rounded-lg bg-[#25D366] text-white text-sm font-semibold px-3 py-1.5"
+          >
+            📩 Send renewal reminder on WhatsApp
+          </a>
+        )}
       </div>
 
       {/* Owner + numbers */}

@@ -8,6 +8,7 @@ import SearchBar from "@/components/SearchBar";
 import CategoryPicker from "@/components/CategoryPicker";
 import { PROVINCES } from "@/lib/lk-locations";
 import BackButton from "@/components/BackButton";
+import { byPlanRank } from "@/lib/plan";
 
 export const metadata = { title: "Search — AndumPola" };
 
@@ -46,8 +47,9 @@ export default async function SearchPage({
 
   let query = supabase
     .from("products")
-    .select("*, shops(name, slug, city, district), categories!inner(name, slug)")
+    .select("*, shops!inner(name, slug, city, district, plan, status), categories!inner(name, slug)")
     .eq("is_available", true)
+    .eq("shops.status", "active")
     .order("created_at", { ascending: false })
     .limit(48);
 
@@ -66,7 +68,12 @@ export default async function SearchPage({
     query = query.in("shop_id", shopIds.length ? shopIds : ["none"]);
   }
 
-  const { data: products } = await query;
+  const { data: rawProducts } = await query;
+  // Ultra shops first, then Pro/trial, then Basic (newest first within each)
+  const products = byPlanRank(
+    rawProducts ?? [],
+    (p) => (p.shops as { plan?: string } | null)?.plan
+  );
   const activeCategory = (categories as Category[] | null)?.find(
     (c) => c.slug === category
   );

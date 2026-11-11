@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import SignOutButton from "@/components/SignOutButton";
 import { countNewOrders } from "@/lib/new-orders";
+import { shopExpiry, fmtDate } from "@/lib/plan";
 
 export default async function DashboardLayout({
   children,
@@ -79,20 +80,28 @@ export default async function DashboardLayout({
         </aside>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">{children}</div>
+        <div className="flex-1 min-w-0">
+          {shop && shop.status !== "pending" && shop.status !== "suspended" && (
+            <PlanBanner shop={shop} />
+          )}
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
-function ShopStatus({
-  shop,
-}: {
-  shop: { status: string; plan: string; trial_ends_at: string; subscription_ends_at: string | null };
-}) {
-  const now = Date.now();
+type PlanShop = {
+  status: string;
+  plan: string;
+  trial_ends_at: string | null;
+  subscription_ends_at: string | null;
+};
+
+function ShopStatus({ shop }: { shop: PlanShop }) {
   let label = "";
   let color = "";
+  const exp = shopExpiry(shop);
 
   if (shop.status === "pending") {
     label = "Awaiting approval";
@@ -100,20 +109,17 @@ function ShopStatus({
   } else if (shop.status === "suspended") {
     label = "Suspended";
     color = "bg-berry/15 text-berry";
-  } else if (shop.plan === "trial") {
-    const days = Math.max(
-      0,
-      Math.ceil((new Date(shop.trial_ends_at).getTime() - now) / 86400000)
-    );
-    label = `Free trial · ${days} days left`;
-    color = "bg-leaf/15 text-leaf";
+  } else if (exp.closed) {
+    label = "Closed · renew plan";
+    color = "bg-berry text-white";
+  } else if (exp.expired) {
+    label = `${exp.label} ended`;
+    color = "bg-berry/15 text-berry";
   } else {
-    const end = shop.subscription_ends_at
-      ? new Date(shop.subscription_ends_at).getTime()
-      : 0;
-    const days = Math.max(0, Math.ceil((end - now) / 86400000));
-    label = `${shop.plan.toUpperCase()} · ${days} days left`;
-    color = days > 0 ? "bg-leaf/15 text-leaf" : "bg-berry/15 text-berry";
+    label = `${exp.isTrial ? "Free trial" : exp.label} · ${exp.daysLeft} days left`;
+    color = exp.expiringSoon
+      ? "bg-turmeric/20 text-turmeric"
+      : "bg-leaf/15 text-leaf";
   }
 
   return (
@@ -122,5 +128,35 @@ function ShopStatus({
     >
       {label}
     </span>
+  );
+}
+
+/** Renewal reminder shown on every dashboard page when it matters */
+function PlanBanner({ shop }: { shop: PlanShop }) {
+  const exp = shopExpiry(shop);
+  if (!exp.closed && !exp.expired && !exp.expiringSoon) return null;
+
+  const text = exp.closed
+    ? "🔒 Your shop is closed to customers because your plan ended. Renew now and it opens again as soon as we approve your payment."
+    : exp.expired
+    ? `⚠️ Your ${exp.isTrial ? "free trial" : exp.label + " plan"} ended on ${fmtDate(exp.endIso)}. Your shop will close in ${exp.graceLeft} day${exp.graceLeft === 1 ? "" : "s"} unless you renew.`
+    : `⏳ Your ${exp.isTrial ? "free trial" : exp.label + " plan"} ends in ${exp.daysLeft} day${exp.daysLeft === 1 ? "" : "s"} (${fmtDate(exp.endIso)}). Choose a plan to keep your shop online — from Rs 500/month.`;
+
+  return (
+    <div
+      className={`mb-5 rounded-xl border p-4 text-sm flex flex-col sm:flex-row sm:items-center gap-3 justify-between ${
+        exp.closed || exp.expired
+          ? "bg-berry/5 border-berry"
+          : "bg-turmeric/10 border-turmeric/50"
+      }`}
+    >
+      <p>{text}</p>
+      <Link
+        href="/dashboard/subscription"
+        className="shrink-0 rounded-lg bg-berry text-white font-semibold px-4 py-2 text-center"
+      >
+        {exp.isTrial ? "Choose a plan" : "Renew now"}
+      </Link>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { sendOrderNotification } from "@/lib/notify";
+import { planInfo } from "@/lib/plan";
 
 export async function POST(req: Request) {
   try {
@@ -88,18 +89,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // shop must be live
-    const now = Date.now();
-    const live =
-      shop.status === "active" &&
-      ((shop.plan === "trial" &&
-        new Date(shop.trial_ends_at).getTime() > now) ||
-        (["basic", "pro"].includes(shop.plan) &&
-          shop.subscription_ends_at &&
-          new Date(shop.subscription_ends_at).getTime() > now));
-    if (!live) {
+    // shop must be open (closed shops have status 'expired') and its plan
+    // must include online orders (trial / pro / ultra)
+    if (shop.status !== "active" || !planInfo(shop.plan).onlineOrders) {
       return NextResponse.json(
-        { error: "This shop is currently unavailable." },
+        { error: "This shop is currently unavailable for online orders. Please order on WhatsApp." },
         { status: 400 }
       );
     }

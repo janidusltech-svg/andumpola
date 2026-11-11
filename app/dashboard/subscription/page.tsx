@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/types";
 import SubscriptionForm from "@/components/SubscriptionForm";
+import { PLANS, PAID_PLANS, planInfo, shopExpiry, fmtDate } from "@/lib/plan";
 
 export default async function SubscriptionPage() {
   const supabase = await createClient();
@@ -17,56 +18,88 @@ export default async function SubscriptionPage() {
     .maybeSingle();
   if (!shop) redirect("/dashboard");
 
-  const { data: payments } = await supabase
-    .from("subscription_payments")
-    .select("*")
-    .eq("shop_id", shop.id)
-    .order("created_at", { ascending: false });
+  const [{ data: payments }, { count: productCount }] = await Promise.all([
+    supabase
+      .from("subscription_payments")
+      .select("*")
+      .eq("shop_id", shop.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("shop_id", shop.id),
+  ]);
 
-  const now = Date.now();
-  const trialLeft = Math.max(
-    0,
-    Math.ceil((new Date(shop.trial_ends_at).getTime() - now) / 86400000)
-  );
+  const exp = shopExpiry(shop);
+  const current = planInfo(shop.plan);
+  const pendingPay = payments?.find((p) => p.status === "pending");
 
   return (
     <div>
       <h1 className="display text-2xl font-bold mb-6">Subscription</h1>
 
       {/* Current status */}
-      <div className="rounded-xl bg-white border border-line p-5 mb-6">
+      <div
+        className={`rounded-xl border p-5 mb-6 ${
+          exp.closed || exp.expired
+            ? "border-berry bg-berry/5"
+            : exp.expiringSoon
+            ? "border-turmeric bg-turmeric/10"
+            : "border-line bg-white"
+        }`}
+      >
         <p className="text-sm text-soft">Current plan</p>
-        <p className="display text-xl font-bold capitalize">
-          {shop.plan}
-          {shop.plan === "trial" && ` · ${trialLeft} days left`}
+        <p className="display text-xl font-bold">
+          {current.name} ·{" "}
+          {exp.closed
+            ? "Shop closed"
+            : exp.expired
+            ? "Ended"
+            : `${exp.daysLeft} day${exp.daysLeft === 1 ? "" : "s"} left`}
         </p>
-        {shop.plan === "trial" && (
-          <p className="text-sm text-soft mt-1">
-            Enjoy your free trial. Upgrade any time to keep your shop live
-            after it ends.
+        <p className="text-sm text-soft mt-1">
+          {exp.closed
+            ? "Your shop is hidden from customers. Pay below and it opens again as soon as we approve."
+            : exp.expired
+            ? `Your plan ended on ${fmtDate(exp.endIso)}. Your shop closes in ${exp.graceLeft} day(s) unless you renew.`
+            : `Ends on ${fmtDate(exp.endIso)}.`}
+          {exp.isTrial && !exp.expired && " You have full Pro access during your trial."}
+        </p>
+        <p className="text-sm mt-2">
+          Products: <strong>{productCount ?? 0}</strong>
+          {current.maxProducts !== Infinity && ` / ${current.maxProducts}`}
+        </p>
+        {pendingPay && (
+          <p className="text-sm mt-2 text-turmeric font-medium">
+            ⏳ Your payment of {formatLKR(pendingPay.amount)} is waiting for
+            approval (usually within 24 hours).
           </p>
         )}
       </div>
 
       {/* Plans */}
-      <div className="grid sm:grid-cols-2 gap-4 mb-8">
-        <PlanCard
-          name="Basic"
-          price={1000}
-          features={["Up to 150 products", "Your own shop page", "WhatsApp & call orders", "Global search listing"]}
-        />
-        <PlanCard
-          name="Pro"
-          price={2000}
-          highlight
-          features={["Unlimited products", "Everything in Basic", "Priority in search", "Online order system"]}
-        />
+      <div className="grid sm:grid-cols-3 gap-4 mb-8">
+        {PAID_PLANS.map((k) => (
+          <PlanCard
+            key={k}
+            name={PLANS[k].name}
+            price={PLANS[k].price}
+            features={PLANS[k].features}
+            highlight={k === "pro"}
+            current={shop.plan === k}
+            tooSmall={
+              PLANS[k].maxProducts !== Infinity &&
+              (productCount ?? 0) > PLANS[k].maxProducts
+            }
+          />
+        ))}
       </div>
 
-      {/* Payment instructions + upload */}
-      <SubscriptionForm shopId={shop.id} />
+      <SubscriptionForm
+        shopId={shop.id}
+        defaultPlan={shop.plan === "trial" ? "pro" : (shop.plan as "basic" | "pro" | "ultra")}
+      />
 
-      {/* History */}
       {payments && payments.length > 0 && (
         <div className="mt-8">
           <h2 className="display font-bold mb-3">Payment history</h2>
@@ -77,8 +110,8 @@ export default async function SubscriptionPage() {
                 className="flex items-center justify-between bg-white border border-line rounded-lg p-3 text-sm"
               >
                 <span>
-                  {p.plan.toUpperCase()} · {p.months} month(s) ·{" "}
-                  {formatLKR(p.amount)}
+                  {String(p.plan).toUpperCase()} · {p.months} month(s) ·{" "}
+                  {formatLKR(p.amount)} · {fmtDate(p.created_at)}
                 </span>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
@@ -105,11 +138,15 @@ function PlanCard({
   price,
   features,
   highlight,
+  current,
+  tooSmall,
 }: {
   name: string;
   price: number;
   features: string[];
   highlight?: boolean;
+  current?: boolean;
+  tooSmall?: boolean;
 }) {
   return (
     <div
@@ -117,13 +154,17 @@ function PlanCard({
         highlight ? "border-berry bg-berry/5" : "border-line bg-white"
       }`}
     >
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between gap-2">
         <p className="display font-bold text-lg">{name}</p>
-        {highlight && (
+        {current ? (
+          <span className="text-[11px] bg-leaf text-white rounded-full px-2 py-0.5">
+            Your plan
+          </span>
+        ) : highlight ? (
           <span className="text-[11px] bg-berry text-white rounded-full px-2 py-0.5">
             Popular
           </span>
-        )}
+        ) : null}
       </div>
       <p className="mt-1">
         <span className="display text-2xl font-bold">{formatLKR(price)}</span>
@@ -137,6 +178,12 @@ function PlanCard({
           </li>
         ))}
       </ul>
+      {tooSmall && (
+        <p className="mt-3 text-xs text-turmeric">
+          You have more products than this plan allows — nothing is deleted,
+          but you can&apos;t add more until you&apos;re under the limit.
+        </p>
+      )}
     </div>
   );
 }

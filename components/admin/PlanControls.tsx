@@ -6,8 +6,13 @@ import {
   setPlanAndEndDate,
   recordManualPayment,
 } from "@/app/admin/actions";
+import { PLANS, type PaidPlan } from "@/lib/plan";
 
-const PRICE = { basic: 1000, pro: 2000 } as const;
+const PRICE = {
+  basic: PLANS.basic.price,
+  pro: PLANS.pro.price,
+  ultra: PLANS.ultra.price,
+};
 
 export default function PlanControls({
   shopId,
@@ -29,11 +34,11 @@ export default function PlanControls({
     (endIso ? new Date(endIso) : new Date()).toISOString().slice(0, 10)
   );
   // manual payment
-  const [payPlan, setPayPlan] = useState<"basic" | "pro">(
-    plan === "pro" ? "pro" : "basic"
-  );
+  const startPlan: PaidPlan =
+    plan === "ultra" || plan === "pro" ? plan : plan === "trial" ? "pro" : "basic";
+  const [payPlan, setPayPlan] = useState<PaidPlan>(startPlan);
   const [months, setMonths] = useState(1);
-  const [amount, setAmount] = useState<number>(PRICE.basic);
+  const [amount, setAmount] = useState<number>(PRICE[startPlan]);
   const [note, setNote] = useState("");
 
   function run(fn: () => Promise<void>, ok: string) {
@@ -119,14 +124,15 @@ export default function PlanControls({
             <select
               value={payPlan}
               onChange={(e) => {
-                const p = e.target.value as "basic" | "pro";
+                const p = e.target.value as PaidPlan;
                 setPayPlan(p);
                 setAmount(PRICE[p] * months);
               }}
               className={input}
             >
-              <option value="basic">Basic (LKR 1,000)</option>
-              <option value="pro">Pro (LKR 2,000)</option>
+              <option value="basic">Basic (LKR {PRICE.basic})</option>
+              <option value="pro">Pro (LKR {PRICE.pro})</option>
+              <option value="ultra">Ultra (LKR {PRICE.ultra})</option>
             </select>
           </label>
           <label className="text-xs text-soft">
@@ -197,6 +203,7 @@ export default function PlanControls({
             <option value="trial">Trial</option>
             <option value="basic">Basic</option>
             <option value="pro">Pro</option>
+            <option value="ultra">Ultra</option>
           </select>
           <input
             type="date"
@@ -214,7 +221,7 @@ export default function PlanControls({
                 () =>
                   setPlanAndEndDate(
                     shopId,
-                    newPlan as "trial" | "basic" | "pro",
+                    newPlan as "trial" | PaidPlan,
                     date
                   ),
                 "Plan updated"

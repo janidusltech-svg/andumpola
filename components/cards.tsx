@@ -122,6 +122,14 @@ export function ShopCard({ shop }: { shop: Shop }) {
         <div className="mt-2 min-w-0">
           <p className="font-semibold truncate group-hover:text-berry">
             {shop.name}
+            {(shop as Shop & { plan?: string }).plan === "ultra" && (
+              <span
+                title="Verified shop"
+                className="ml-1.5 inline-flex items-center justify-center h-4 w-4 rounded-full bg-berry text-white text-[10px] align-middle"
+              >
+                ✓
+              </span>
+            )}
           </p>
           <p className="text-xs text-soft truncate">{location}</p>
         </div>

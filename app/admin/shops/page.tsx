@@ -22,6 +22,7 @@ export default async function AdminShopsPage({
   if (filter === "pending") query = query.eq("status", "pending");
   else if (filter === "active") query = query.eq("status", "active");
   else if (filter === "suspended") query = query.eq("status", "suspended");
+  else if (filter === "closed") query = query.eq("status", "expired");
   else if (filter === "trial") query = query.eq("plan", "trial");
   else if (filter === "paid") query = query.neq("plan", "trial");
   if (q?.trim()) query = query.ilike("name", `%${q.trim()}%`);
@@ -43,6 +44,7 @@ export default async function AdminShopsPage({
     { key: "paid", label: "Paid" },
     { key: "expiring", label: "⏳ Ending ≤7 days" },
     { key: "expired", label: "⛔ Expired" },
+    { key: "closed", label: "🔒 Closed (unpaid)" },
   ];
 
   return (
@@ -152,6 +154,7 @@ function StatusBadge({ status }: { status: string }) {
     pending: "bg-turmeric/20 text-turmeric",
     active: "bg-leaf/15 text-leaf",
     suspended: "bg-berry/15 text-berry",
+    expired: "bg-berry text-white",
   };
   return (
     <span

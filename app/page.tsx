@@ -15,10 +15,11 @@ export default async function HomePage() {
 
   const [
     { data: categories },
-    { data: shops },
+    { data: newestShops },
     { data: products },
     { count: shopCount },
     { count: productCount },
+    { data: ultraShops },
   ] = await Promise.all([
     supabase.from("categories").select("*").order("sort_order"),
     supabase
@@ -29,8 +30,9 @@ export default async function HomePage() {
       .limit(6),
     supabase
       .from("products")
-      .select("*, shops(name, slug, city)")
+      .select("*, shops!inner(name, slug, city, status)")
       .eq("is_available", true)
+      .eq("shops.status", "active")
       .order("created_at", { ascending: false })
       .limit(8),
     supabase
@@ -41,7 +43,20 @@ export default async function HomePage() {
       .from("products")
       .select("*", { count: "exact", head: true })
       .eq("is_available", true),
+    // Ultra plan shops are featured on the homepage
+    supabase
+      .from("shops")
+      .select("*")
+      .eq("status", "active")
+      .eq("plan", "ultra")
+      .order("created_at", { ascending: false })
+      .limit(6),
   ]);
+
+  const seen = new Set<string>();
+  const shops = [...(ultraShops ?? []), ...(newestShops ?? [])]
+    .filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)))
+    .slice(0, 6);
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">

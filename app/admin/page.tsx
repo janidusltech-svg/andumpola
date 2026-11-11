@@ -54,7 +54,7 @@ export default async function AdminHome() {
     supabase
       .from("shops")
       .select("id, name, plan, status, trial_ends_at, subscription_ends_at")
-      .eq("status", "active"),
+      .in("status", ["active", "expired"]),
   ]);
 
   const withExp = (planShops ?? []).map((s) => ({ ...s, exp: shopExpiry(s) }));
@@ -63,6 +63,10 @@ export default async function AdminHome() {
     .sort((a, b) => a.exp.daysLeft - b.exp.daysLeft);
   const onTrial = withExp.filter((s) => s.plan === "trial" && !s.exp.expired).length;
   const paying = withExp.filter((s) => s.plan !== "trial" && !s.exp.expired).length;
+  const ultraRevenue =
+    approvedSubs
+      ?.filter((p) => p.plan === "ultra")
+      .reduce((s, p) => s + Number(p.amount), 0) ?? 0;
 
   const revenue =
     approvedSubs?.reduce((sum, p) => sum + Number(p.amount), 0) ?? 0;
@@ -117,7 +121,7 @@ export default async function AdminHome() {
         <Stat label="Suspended" value={String(suspendedShops ?? 0)} />
       </div>
 
-      <SectionTitle>Plans (active shops)</SectionTitle>
+      <SectionTitle>Plans</SectionTitle>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
         <Stat label="On free trial" value={String(onTrial)} />
         <Stat label="Paying" value={String(paying)} tone="leaf" />
@@ -142,7 +146,12 @@ export default async function AdminHome() {
                 }`}
               >
                 {s.exp.label} ·{" "}
-                {s.exp.expired ? "expired" : `${s.exp.daysLeft}d left`} →
+                {s.exp.closed
+                  ? "closed"
+                  : s.exp.expired
+                  ? `expired · closes in ${s.exp.graceLeft}d`
+                  : `${s.exp.daysLeft}d left`}{" "}
+                →
               </span>
             </Link>
           ))}
@@ -158,10 +167,11 @@ export default async function AdminHome() {
       </div>
 
       <SectionTitle>Revenue (approved subscriptions)</SectionTitle>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Stat label="Total earned" value={formatLKR(revenue)} tone="leaf" />
         <Stat label="From Basic" value={formatLKR(basicRevenue)} />
         <Stat label="From Pro" value={formatLKR(proRevenue)} />
+        <Stat label="From Ultra" value={formatLKR(ultraRevenue)} />
       </div>
 
       <SectionTitle>Newest shops</SectionTitle>

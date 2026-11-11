@@ -84,6 +84,7 @@ export default function RootLayout({
                 <p className="font-semibold text-sm mb-3">For shops</p>
                 <ul className="space-y-2 text-sm text-soft">
                   <li><Link href="/signup" className="hover:text-berry">Open a shop</Link></li>
+                  <li><Link href="/pricing" className="hover:text-berry">Pricing</Link></li>
                   <li><Link href="/login" className="hover:text-berry">Shop login</Link></li>
                   <li><Link href="/faq" className="hover:text-berry">FAQ</Link></li>
                 </ul>

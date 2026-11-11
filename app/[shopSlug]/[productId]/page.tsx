@@ -1,6 +1,6 @@
 // app/[shopSlug]/[productId]/page.tsx
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { supabasePublic } from "@/lib/supabase/public";
 import { Product, formatLKR, audienceLabel, colorHex } from "@/lib/types";
 import BackButton from "@/components/BackButton";
@@ -10,6 +10,7 @@ import SaveButton from "@/components/SaveButton";
 import ShareButton from "@/components/ShareButton";
 import ProductGallery from "@/components/ProductGallery";
 import TrackView from "@/components/TrackView";
+import { planInfo } from "@/lib/plan";
 
 export const revalidate = 60;
 
@@ -58,12 +59,15 @@ export default async function ProductPage({
   const { data: product } = await supabase
     .from("products")
     .select(
-      "*, shops(name, slug, whatsapp, phone, city, enable_online_orders, bank_name, bank_branch, bank_account_name, bank_account_number), categories(name, slug)"
+      "*, shops(name, slug, whatsapp, phone, city, plan, status, enable_online_orders, bank_name, bank_branch, bank_account_name, bank_account_number), categories(name, slug)"
     )
     .eq("id", productId)
     .single();
 
   if (!product || product.shops?.slug !== shopSlug) notFound();
+  // closed / suspended shop → shop page explains it
+  if ((product.shops as { status?: string }).status !== "active")
+    redirect(`/${shopSlug}`);
   const p = product as Product;
   // bank fields aren't on the Product.shops type; read from raw row
   const shopBank = (product.shops ?? {}) as {
@@ -186,7 +190,9 @@ export default async function ProductPage({
             </div>
 
             {/* Optional online order (shop opt-in) */}
-            {p.shops?.enable_online_orders && inStock.length > 0 && (
+            {p.shops?.enable_online_orders &&
+              planInfo((product.shops as { plan?: string } | null)?.plan).onlineOrders &&
+              inStock.length > 0 && (
               <div className="mt-3 pt-3 border-t border-line">
                 <p className="text-xs text-soft mb-1 text-center">
                   Prefer to pay by bank transfer?

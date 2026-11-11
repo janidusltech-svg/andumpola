@@ -23,9 +23,10 @@ export async function GET(req: Request) {
   const [{ data: products }, { data: shops }] = await Promise.all([
     supabase
       .from("products")
-      .select("id, title, price, images, shops(name, slug)")
+      .select("id, title, price, images, shops!inner(name, slug, status)")
       .ilike("title", `%${q}%`)
       .eq("is_available", true)
+      .eq("shops.status", "active")
       .limit(6),
     supabase
       .from("shops")

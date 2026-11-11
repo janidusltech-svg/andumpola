@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadReceipt } from "@/lib/upload";
 import { formatLKR } from "@/lib/types";
+import { PLANS, PAID_PLANS, type PaidPlan } from "@/lib/plan";
 
 // YOUR bank details — the platform owner. EDIT THESE.
 const ADMIN_BANK = {
@@ -14,19 +15,23 @@ const ADMIN_BANK = {
   account: "154020031662",
 };
 
-const PRICES = { basic: 1000, pro: 2000 };
-
-export default function SubscriptionForm({ shopId }: { shopId: string }) {
+export default function SubscriptionForm({
+  shopId,
+  defaultPlan = "pro",
+}: {
+  shopId: string;
+  defaultPlan?: PaidPlan;
+}) {
   const router = useRouter();
   const supabase = createClient();
-  const [plan, setPlan] = useState<"basic" | "pro">("basic");
+  const [plan, setPlan] = useState<PaidPlan>(defaultPlan);
   const [months, setMonths] = useState(1);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const amount = PRICES[plan] * months;
+  const amount = PLANS[plan].price * months;
 
   async function submit() {
     setError("");
@@ -68,11 +73,14 @@ export default function SubscriptionForm({ shopId }: { shopId: string }) {
           <span className="text-sm font-medium">Plan</span>
           <select
             value={plan}
-            onChange={(e) => setPlan(e.target.value as "basic" | "pro")}
+            onChange={(e) => setPlan(e.target.value as PaidPlan)}
             className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 bg-white"
           >
-            <option value="basic">Basic — {formatLKR(PRICES.basic)}/mo</option>
-            <option value="pro">Pro — {formatLKR(PRICES.pro)}/mo</option>
+            {PAID_PLANS.map((k) => (
+              <option key={k} value={k}>
+                {PLANS[k].name} — {formatLKR(PLANS[k].price)}/mo
+              </option>
+            ))}
           </select>
         </label>
         <label className="block">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR, Product } from "@/lib/types";
 import DeleteProductButton from "@/components/DeleteProductButton";
+import { planInfo } from "@/lib/plan";
 
 export default async function ProductsPage() {
   const supabase = await createClient();
@@ -35,7 +36,8 @@ export default async function ProductsPage() {
     .order("created_at", { ascending: false });
 
   const list = (products ?? []) as (Product & { categories?: { name: string } })[];
-  const limit = shop.plan === "pro" ? Infinity : 150;
+  const plan = planInfo(shop.plan);
+  const limit = plan.maxProducts;
   const atLimit = list.length >= limit;
 
   return (
@@ -62,8 +64,9 @@ export default async function ProductsPage() {
 
       {atLimit && (
         <div className="mb-4 rounded-lg bg-turmeric/15 border border-turmeric/40 p-3 text-sm">
-          You&apos;ve reached your {limit}-product limit. Upgrade to{" "}
-          <strong>Pro</strong> for unlimited products in{" "}
+          You&apos;ve reached your {plan.name} plan&apos;s {limit}-product
+          limit. Upgrade to{" "}
+          <strong>{shop.plan === "basic" ? "Pro (150)" : "Ultra (unlimited)"}</strong> in{" "}
           <Link href="/dashboard/subscription" className="text-berry underline">
             Subscription
           </Link>

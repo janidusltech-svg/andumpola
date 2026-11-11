@@ -39,18 +39,27 @@ export async function reviewSubscription(
   decision: "approved" | "rejected",
   note?: string
 ) {
-  const supabase = await assertAdmin();
-  // The DB trigger extends the shop subscription automatically on approve.
-  const { error } = await supabase
+  await assertAdmin();
+  const db = supabaseAdmin();
+  const { data: pay } = await db
     .from("subscription_payments")
-    .update({
-      status: decision,
-      admin_note: note || null,
-    })
+    .select("id, shop_id, plan, months, status")
+    .eq("id", paymentId)
+    .single();
+  if (!pay) throw new Error("Payment not found");
+  if (pay.status !== "pending") throw new Error("Already reviewed");
+
+  // snapshot BEFORE approving, so the new end date is exact
+  const shop = decision === "approved" ? await loadShop(pay.shop_id) : null;
+
+  const { error } = await db
+    .from("subscription_payments")
+    .update({ status: decision, admin_note: note || null })
     .eq("id", paymentId);
   if (error) throw new Error(error.message);
-  revalidatePath("/admin/subscriptions");
-  revalidatePath("/admin");
+
+  if (shop) await applyPaidMonths(shop, pay.plan as PaidPlan, pay.months);
+  revalidateShop(pay.shop_id);
 }
 
 export async function addCategory(name: string) {
@@ -80,8 +89,9 @@ export async function deleteCategory(id: string) {
 // role after assertAdmin(), so RLS can't block them.
 // ============================================================
 const DAY = 86400000;
-type Plan = "trial" | "basic" | "pro";
-const PLANS: Plan[] = ["trial", "basic", "pro"];
+type Plan = "trial" | "basic" | "pro" | "ultra";
+type PaidPlan = "basic" | "pro" | "ultra";
+const PLAN_KEYS: Plan[] = ["trial", "basic", "pro", "ultra"];
 
 function revalidateShop(shopId: string) {
   revalidatePath("/admin");
@@ -94,13 +104,14 @@ async function loadShop(shopId: string) {
   const db = supabaseAdmin();
   const { data, error } = await db
     .from("shops")
-    .select("id, plan, trial_ends_at, subscription_ends_at")
+    .select("id, plan, status, trial_ends_at, subscription_ends_at")
     .eq("id", shopId)
     .single();
   if (error || !data) throw new Error("Shop not found");
   return data as {
     id: string;
     plan: Plan;
+    status: string;
     trial_ends_at: string | null;
     subscription_ends_at: string | null;
   };
@@ -120,6 +131,7 @@ export async function addFreeDays(shopId: string, days: number) {
     .from("shops")
     .update({
       [field]: new Date(base + n * DAY).toISOString(),
+      ...reopen(shop.status),
       updated_at: new Date().toISOString(),
     })
     .eq("id", shopId);
@@ -134,11 +146,13 @@ export async function setPlanAndEndDate(
   endDate: string
 ) {
   await assertAdmin();
-  if (!PLANS.includes(plan)) throw new Error("Invalid plan");
+  if (!PLAN_KEYS.includes(plan)) throw new Error("Invalid plan");
   const d = new Date(`${endDate}T23:59:59+05:30`); // end of that day, Sri Lanka time
   if (isNaN(d.getTime())) throw new Error("Pick a valid date");
+  const shop = await loadShop(shopId);
   const update: Record<string, string> = {
     plan,
+    ...(d.getTime() > Date.now() ? reopen(shop.status) : {}),
     updated_at: new Date().toISOString(),
   };
   if (plan === "trial") update.trial_ends_at = d.toISOString();
@@ -154,13 +168,13 @@ export async function setPlanAndEndDate(
 /** Record a cash / in-person payment and extend the plan. */
 export async function recordManualPayment(
   shopId: string,
-  plan: "basic" | "pro",
+  plan: PaidPlan,
   months: number,
   amount: number,
   note?: string
 ) {
   await assertAdmin();
-  if (plan !== "basic" && plan !== "pro") throw new Error("Invalid plan");
+  if (!["basic", "pro", "ultra"].includes(plan)) throw new Error("Invalid plan");
   const m = Math.round(Number(months));
   const amt = Number(amount);
   if (!Number.isFinite(m) || m < 1 || m > 24)
@@ -169,14 +183,6 @@ export async function recordManualPayment(
 
   const shop = await loadShop(shopId);
   const db = supabaseAdmin();
-
-  // New end date: from the later of today / current paid end date.
-  const paidEnd =
-    shop.plan !== "trial" && shop.subscription_ends_at
-      ? new Date(shop.subscription_ends_at).getTime()
-      : 0;
-  const base = Math.max(Date.now(), paidEnd);
-  const newEnd = new Date(base + m * 30 * DAY).toISOString();
 
   const { data: pay, error: insErr } = await db
     .from("subscription_payments")
@@ -199,16 +205,39 @@ export async function recordManualPayment(
     .eq("id", pay.id);
   if (upErr) throw new Error(upErr.message);
 
-  // Set the end date explicitly so the result is exact whatever the
-  // approval trigger did.
-  const { error: shopErr } = await db
+  await applyPaidMonths(shop, plan, m);
+  revalidateShop(shopId);
+}
+
+/** status change that re-opens a shop closed for non-payment */
+function reopen(status: string) {
+  return status === "expired" ? { status: "active" } : {};
+}
+
+/**
+ * Set plan + exact new end date after a payment. Runs after the DB's own
+ * approval trigger, so the final value is always correct.
+ * Same plan (or upgrade) → adds on top of remaining paid time.
+ */
+async function applyPaidMonths(
+  shop: Awaited<ReturnType<typeof loadShop>>,
+  plan: PaidPlan,
+  months: number
+) {
+  const paidEnd =
+    shop.plan !== "trial" && shop.subscription_ends_at
+      ? new Date(shop.subscription_ends_at).getTime()
+      : 0;
+  const base = Math.max(Date.now(), paidEnd);
+  const newEnd = new Date(base + months * 30 * DAY).toISOString();
+  const { error } = await supabaseAdmin()
     .from("shops")
     .update({
       plan,
       subscription_ends_at: newEnd,
+      ...reopen(shop.status),
       updated_at: new Date().toISOString(),
     })
-    .eq("id", shopId);
-  if (shopErr) throw new Error(shopErr.message);
-  revalidateShop(shopId);
+    .eq("id", shop.id);
+  if (error) throw new Error(error.message);
 }
