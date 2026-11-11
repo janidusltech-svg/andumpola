@@ -228,6 +228,11 @@ export default async function ProductPage({
                 sizes={inStockSizes}
                 productUrl={productUrl}
                 soldOut={soldOut}
+                cartInfo={{
+                  shopId: p.shop_id,
+                  shopSlug: shopSlug,
+                  image: p.images?.[0] ?? null,
+                }}
               />
             </div>
 

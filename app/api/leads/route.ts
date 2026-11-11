@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
@@ -33,14 +34,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false }, { status: 404 });
     }
 
-    await supabase.from("leads").insert({
+    // link to the customer's account if they're logged in ("My orders")
+    let customerId: string | null = null;
+    try {
+      const {
+        data: { user },
+      } = await (await createClient()).auth.getUser();
+      customerId = user?.id ?? null;
+    } catch {}
+
+    const leadRow = {
       shop_id: product.shop_id,
       product_id: product.id,
       product_title: product.title,
       size: size ? String(size).slice(0, 50) : null,
       quantity: qty,
       channel: "whatsapp",
-    });
+    };
+    const { error: lErr } = await supabase
+      .from("leads")
+      .insert({ ...leadRow, customer_id: customerId });
+    if (lErr && lErr.message.includes("customer_id")) {
+      await supabase.from("leads").insert(leadRow); // DB not migrated yet
+    }
 
     return NextResponse.json({ ok: true });
   } catch {

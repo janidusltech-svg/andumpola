@@ -3,10 +3,12 @@
 // Primary order path: pick size + quantity, then "Order on WhatsApp" opens
 // the shop's WhatsApp pre-filled with the full product details. Each click
 // is logged as a lead so the shop owner can see demand in their dashboard.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatLKR } from "@/lib/types";
 import { toWaNumber } from "@/lib/order-status";
 import { useT } from "@/lib/i18n";
+import { useCart } from "@/lib/cart";
+import Link from "next/link";
 
 export default function OrderOnWhatsApp({
   productId,
@@ -18,6 +20,7 @@ export default function OrderOnWhatsApp({
   sizes,
   productUrl,
   soldOut,
+  cartInfo,
 }: {
   productId: string;
   productTitle: string;
@@ -28,10 +31,15 @@ export default function OrderOnWhatsApp({
   sizes: string[]; // in-stock sizes (may be empty)
   productUrl: string;
   soldOut?: boolean; // owner marked "Sold out" or no stock left
+  cartInfo?: { shopId: string; shopSlug: string; image?: string | null };
 }) {
   const [size, setSize] = useState<string>(sizes[0] ?? "");
   const [qty, setQty] = useState(1);
   const t = useT();
+  const cart = useCart();
+  const [added, setAdded] = useState(false);
+  // picking another size / quantity → allow adding again
+  useEffect(() => setAdded(false), [size, qty]);
 
   const total = price * qty;
   const waNumber = toWaNumber(whatsapp);
@@ -169,6 +177,40 @@ export default function OrderOnWhatsApp({
         </svg>
         {t("orderOnWhatsApp")}
       </a>
+
+      {/* Add to cart (order several items from this shop in one message) */}
+      {cartInfo && (
+        added ? (
+          <Link
+            href="/cart"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-leaf text-leaf font-semibold py-3"
+          >
+            {t("addedToCart")} · {t("viewCart")} →
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              cart.add({
+                productId,
+                shopId: cartInfo.shopId,
+                shopSlug: cartInfo.shopSlug,
+                shopName,
+                whatsapp,
+                title: productTitle,
+                price,
+                image: cartInfo.image ?? null,
+                size: size || undefined,
+                qty,
+              });
+              setAdded(true);
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-ink text-ink font-semibold py-3 hover:bg-ink hover:text-white transition-colors"
+          >
+            🛒 {t("addToCart")}
+          </button>
+        )
+      )}
 
       {/* Secondary: Call */}
       <a

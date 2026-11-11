@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { LangProvider } from "@/lib/i18n";
+import { CartProvider } from "@/lib/cart";
 import { Schibsted_Grotesk, Inter } from "next/font/google";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
@@ -57,6 +58,7 @@ export default function RootLayout({
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className="min-h-screen flex flex-col">
         <LangProvider>
+        <CartProvider>
         <SiteHeader />
 
         <main className="flex-1">{children}</main>
@@ -114,6 +116,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        </CartProvider>
         </LangProvider>
         <Analytics />
       </body>

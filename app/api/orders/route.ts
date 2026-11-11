@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { sendOrderNotification } from "@/lib/notify";
 import { planInfo } from "@/lib/plan";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
@@ -109,25 +110,46 @@ export async function POST(req: Request) {
 
     const total = Number(product.price) * qty;
 
-    const { data: order, error: oErr } = await supabase
+    // link to the customer's account if they're logged in ("My orders")
+    let customerId: string | null = null;
+    try {
+      const {
+        data: { user },
+      } = await (await createClient()).auth.getUser();
+      customerId = user?.id ?? null;
+    } catch {}
+
+    const row = {
+      shop_id: product.shop_id,
+      product_id: product.id,
+      customer_name: customer_name.trim(),
+      customer_phone: customer_phone.trim(),
+      customer_address: customer_address.trim(),
+      size: size.trim(),
+      quantity: qty,
+      total,
+      receipt_url: receipt_path || null,
+      status: "pending",
+    };
+    let { data: order, error: oErr } = await supabase
       .from("orders")
-      .insert({
-        shop_id: product.shop_id,
-        product_id: product.id,
-        customer_name: customer_name.trim(),
-        customer_phone: customer_phone.trim(),
-        customer_address: customer_address.trim(),
-        size: size.trim(),
-        quantity: qty,
-        total,
-        receipt_url: receipt_path || null,
-        status: "pending",
-      })
+      .insert({ ...row, customer_id: customerId })
       .select("order_ref")
       .single();
+    // DB not migrated yet (no customer_id column) → still take the order
+    if (oErr && oErr.message.includes("customer_id")) {
+      ({ data: order, error: oErr } = await supabase
+        .from("orders")
+        .insert(row)
+        .select("order_ref")
+        .single());
+    }
 
-    if (oErr) {
-      return NextResponse.json({ error: oErr.message }, { status: 500 });
+    if (oErr || !order) {
+      return NextResponse.json(
+        { error: oErr?.message ?? "Could not place order" },
+        { status: 500 }
+      );
     }
 
     // Notify the shop owner by email (fire-and-forget; never blocks the order)

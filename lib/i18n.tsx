@@ -19,6 +19,12 @@ const DICT = {
     "ඔබේ ඇණවුම WhatsApp හරහා කෙලින්ම සාප්පුවට යයි. මිල, බෙදාහැරීම සහ ගෙවීම ඔවුන් ඔබ සමඟ සෘජුවම තහවුරු කරයි.",
     "உங்கள் ஆர்டர் WhatsApp மூலம் நேரடியாக கடைக்குச் செல்லும். விலை, டெலிவரி மற்றும் கட்டணத்தை அவர்கள் உங்களுடன் நேரடியாக உறுதிப்படுத்துவார்கள்.",
   ],
+  addToCart: ["Add to cart", "කරත්තයට එක් කරන්න", "கூடையில் சேர்"],
+  addedToCart: ["Added to cart ✓", "කරත්තයට එක් කළා ✓", "கூடையில் சேர்க்கப்பட்டது ✓"],
+  viewCart: ["View cart", "කරත්තය බලන්න", "கூடையைப் பார்"],
+  cart: ["Cart", "කරත්තය", "கூடை"],
+  account: ["Account", "ගිණුම", "கணக்கு"],
+  login: ["Log in", "ඇතුල් වන්න", "உள்நுழை"],
   soldOut: ["Sold out", "අවසන්", "விற்றுத் தீர்ந்தது"],
   soldOutNow: ["Sold out right now", "දැනට තොග අවසන්", "தற்போது இருப்பில் இல்லை"],
   askComeback: [
@@ -97,7 +103,7 @@ export function LanguageSwitcher() {
       aria-label="Language"
       value={lang}
       onChange={(e) => setLang(e.target.value as Lang)}
-      className="rounded-lg border border-line bg-white px-1.5 py-1.5 text-xs sm:text-sm"
+      className="rounded-lg border border-line bg-white px-1 py-1 text-xs sm:text-sm sm:px-1.5 sm:py-1.5 mr-0.5"
     >
       <option value="en">EN</option>
       <option value="si">සිං</option>

@@ -23,10 +23,6 @@ export default async function SavedPage() {
     .eq("id", user.id)
     .single();
 
-  // Shop owners shouldn't be here
-  if (profile?.role === "shop_owner" || profile?.role === "admin") {
-    redirect("/dashboard");
-  }
 
   const { data: saved } = await supabase
     .from("saved_products")
