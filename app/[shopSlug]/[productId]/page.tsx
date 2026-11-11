@@ -13,6 +13,7 @@ import TrackView from "@/components/TrackView";
 import { planInfo } from "@/lib/plan";
 import DeliveryInfo from "@/components/DeliveryInfo";
 import { T } from "@/lib/i18n";
+import MobileOrderBar from "@/components/MobileOrderBar";
 
 export const revalidate = 60;
 
@@ -104,8 +105,9 @@ export default async function ProductPage({
   const productUrl = `${baseUrl}/${shopSlug}/${p.id}`;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8 pb-24 lg:pb-8">
       <TrackView shopId={p.shop_id} productId={p.id} />
+      <MobileOrderBar price={formatLKR(p.price)} soldOut={soldOut} />
       {/* Back */}
       <div className="mb-3">
         <BackButton label="Back" fallback={`/${shopSlug}`} />
@@ -126,7 +128,11 @@ export default async function ProductPage({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Gallery */}
         <div>
-          <ProductGallery images={p.images ?? []} title={p.title} />
+          <ProductGallery
+            images={p.images ?? []}
+            title={p.title}
+            wide={!!p.vertical && p.vertical !== "clothing"}
+          />
         </div>
 
         {/* Details */}
@@ -140,12 +146,14 @@ export default async function ProductPage({
                 {p.categories.name}
               </Link>
             )}
+            {(!p.vertical || p.vertical === "clothing") && (
             <Link
               href={`/search?audience=${p.audience}`}
               className="text-[11px] font-semibold bg-sand border border-line rounded-full px-2 py-0.5 hover:border-berry"
             >
               {audienceLabel(p.audience)}
             </Link>
+            )}
             {p.wholesale_only && (
               <span className="text-[11px] font-bold bg-turmeric text-white rounded-full px-2 py-0.5">
                 Wholesale only
@@ -217,7 +225,7 @@ export default async function ProductPage({
               cod={p.shops?.cash_on_delivery}
             />
 
-            <div className="mt-4">
+            <div className="mt-4 scroll-mt-24" id="order">
               <OrderOnWhatsApp
                 productId={p.id}
                 productTitle={p.title}

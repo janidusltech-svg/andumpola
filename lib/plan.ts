@@ -31,7 +31,7 @@ export const PLANS: Record<PlanKey, PlanInfo> = {
     onlineOrders: true,
     searchRank: 1,
     featured: false,
-    features: ["60 days free", "Full Pro access", "5 free AI product photos (one time)"],
+    features: ["60 days free", "Full Pro access", "5 free AI product photos (coming soon)"],
   },
   basic: {
     key: "basic",
@@ -49,7 +49,7 @@ export const PLANS: Record<PlanKey, PlanInfo> = {
       "Your own shop page & link",
       "WhatsApp & call orders",
       "Listed in AndumPola search",
-      "5 AI product photos / month",
+      "5 AI product photos / month (soon)",
     ],
   },
   pro: {
@@ -68,7 +68,7 @@ export const PLANS: Record<PlanKey, PlanInfo> = {
       "Everything in Basic",
       "Online bank-transfer orders",
       "Shown higher in search",
-      "10 AI product photos / month",
+      "10 AI product photos / month (soon)",
     ],
   },
   ultra: {
@@ -88,7 +88,7 @@ export const PLANS: Record<PlanKey, PlanInfo> = {
       "Top of search results",
       "Featured on the homepage",
       "✔ Verified shop badge",
-      "20 AI product photos / month",
+      "20 AI product photos / month (soon)",
     ],
   },
 };

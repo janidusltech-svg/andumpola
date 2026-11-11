@@ -64,7 +64,7 @@ export default function CategoryPicker({
     <div>
       {/* Audience tabs (clothing only) */}
       {showAudience && (
-        <div className="flex gap-2 justify-center mb-4 flex-wrap">
+        <div className="flex gap-2 sm:justify-center mb-3 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap [scrollbar-width:none]">
           <TabButton
             active={tab === "all"}
             onClick={() => setTab("all")}
@@ -82,7 +82,7 @@ export default function CategoryPicker({
       )}
 
       {/* Category search */}
-      <div className="mb-3 max-w-xs mx-auto">
+      <div className="mb-3 max-w-xs mx-auto hidden sm:block">
         <div className="flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-2">
           <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-soft" strokeWidth="2">
             <circle cx="11" cy="11" r="7" />
@@ -106,11 +106,11 @@ export default function CategoryPicker({
       </div>
 
       {/* Chips */}
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center [scrollbar-width:none]">
         {!q && (
           <Link
             href={buildHref({ category: undefined })}
-            className={`rounded-full px-3 py-1.5 text-sm border whitespace-nowrap ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-sm border whitespace-nowrap ${
               !activeSlug
                 ? "bg-berry text-white border-berry"
                 : "bg-white border-line hover:border-berry"
@@ -123,7 +123,7 @@ export default function CategoryPicker({
           <Link
             key={c.id}
             href={buildHref({ category: c.slug })}
-            className={`rounded-full px-3 py-1.5 text-sm border whitespace-nowrap ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-sm border whitespace-nowrap ${
               activeSlug === c.slug
                 ? "bg-berry text-white border-berry"
                 : "bg-white border-line hover:border-berry hover:text-berry"
@@ -136,7 +136,7 @@ export default function CategoryPicker({
         {!q && tab === "all" && !expanded && hiddenCount > 0 && (
           <button
             onClick={() => setExpanded(true)}
-            className="rounded-full px-3 py-1.5 text-sm border border-berry text-berry font-medium hover:bg-berry hover:text-white"
+            className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm border border-berry text-berry font-medium hover:bg-berry hover:text-white"
           >
             + Show all ({byAudience.length})
           </button>
@@ -144,7 +144,7 @@ export default function CategoryPicker({
         {!q && tab === "all" && expanded && (
           <button
             onClick={() => setExpanded(false)}
-            className="rounded-full px-3 py-1.5 text-sm border border-line text-soft hover:border-berry"
+            className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm border border-line text-soft hover:border-berry"
           >
             Show less
           </button>
@@ -181,7 +181,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-xl px-4 py-2 text-sm font-semibold border transition-colors ${
+      className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold border transition-colors ${
         active
           ? "bg-ink text-white border-ink"
           : "bg-white border-line hover:border-berry hover:text-berry"

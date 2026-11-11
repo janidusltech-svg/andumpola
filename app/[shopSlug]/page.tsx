@@ -202,6 +202,13 @@ export default async function ShopPage({
                 .filter(Boolean)
                 .join(" · ") || "Sri Lanka"}
             </p>
+            <p className="text-xs text-soft mt-0.5">
+              On AndumPola since{" "}
+              {new Date(s.created_at).toLocaleDateString("en-GB", {
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
             {reviewCount > 0 && (
               <p className="text-sm mt-0.5 flex items-center gap-1.5">
                 <Stars rating={avgRating} size="text-sm" />
@@ -311,9 +318,11 @@ export default async function ShopPage({
             <h2 className="display text-xl font-bold mb-3 flex items-center gap-2">
               ⭐ <T k="featured" />
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="flex gap-3 overflow-x-auto snap-x -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 sm:overflow-visible [scrollbar-width:none]">
               {featured.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <div key={p.id} className="shrink-0 w-[44%] snap-start sm:w-auto">
+                  <ProductCard product={p} />
+                </div>
               ))}
             </div>
           </div>
@@ -321,10 +330,10 @@ export default async function ShopPage({
 
         {/* Category filter within shop */}
         {shopCategories.length > 1 && (
-          <div className="flex gap-2 flex-wrap mb-6">
+          <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:flex-wrap mb-6 [scrollbar-width:none]">
             <Link
               href={`/${s.slug}`}
-              className={`rounded-full px-3 py-1.5 text-sm border ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm border ${
                 !category
                   ? "bg-berry text-white border-berry"
                   : "bg-white border-line hover:border-berry"
@@ -336,7 +345,7 @@ export default async function ShopPage({
               <Link
                 key={c.slug}
                 href={`/${s.slug}?category=${c.slug}`}
-                className={`rounded-full px-3 py-1.5 text-sm border ${
+                className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm border ${
                   category === c.slug
                     ? "bg-berry text-white border-berry"
                     : "bg-white border-line hover:border-berry"
@@ -353,7 +362,7 @@ export default async function ShopPage({
           <h2 className="display text-xl font-bold mb-3"><T k="allProducts" /></h2>
         )}
         {visible.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 pb-8">
             {visible.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}

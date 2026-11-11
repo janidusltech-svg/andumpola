@@ -85,9 +85,19 @@ export default async function HomePage() {
         </div>
 
         {/* Trust stats */}
-        <div className="mt-6 sm:mt-8 flex gap-9 justify-center">
-          <Stat value={`${shopCount ?? 0}+`} label="Shops" />
-          <Stat value={`${productCount ?? 0}+`} label="Products" />
+        <div className="mt-6 sm:mt-8 flex gap-7 sm:gap-9 justify-center">
+          {/* show counts only once they look impressive */}
+          {(shopCount ?? 0) >= 20 ? (
+            <>
+              <Stat value={`${shopCount}+`} label="Shops" />
+              <Stat value={`${productCount ?? 0}+`} label="Products" />
+            </>
+          ) : (
+            <>
+              <Stat value="0%" label="Commission" />
+              <Stat value="1-tap" label="WhatsApp order" />
+            </>
+          )}
           <Stat value="9" label="Provinces" />
         </div>
       </section>
@@ -126,9 +136,11 @@ export default async function HomePage() {
           </Link>
         </div>
         {shops && shops.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-5 sm:overflow-visible [scrollbar-width:none]">
             {(shops as Shop[]).map((s) => (
-              <ShopCard key={s.id} shop={s} />
+              <div key={s.id} className="shrink-0 w-[78%] snap-start sm:w-auto">
+                <ShopCard shop={s} />
+              </div>
             ))}
           </div>
         ) : (
@@ -150,7 +162,7 @@ export default async function HomePage() {
           </Link>
         </div>
         {products && products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {(products as Product[]).map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
@@ -161,16 +173,16 @@ export default async function HomePage() {
       </section>
 
       {/* Shop owner CTA */}
-      <section className="my-14 rounded-3xl bg-gradient-to-br from-berry to-berry-dark text-white p-10 sm:p-14 text-center">
-        <h2 className="display text-3xl sm:text-4xl font-extrabold">
-          Own a clothing shop? Get online today.
+      <section className="my-10 sm:my-14 rounded-3xl bg-gradient-to-br from-berry to-berry-dark text-white px-6 py-9 sm:p-14 text-center">
+        <h2 className="display text-2xl sm:text-4xl font-extrabold">
+          Own a shop? Get online today.
         </h2>
         <p className="mt-3 text-white/90 max-w-lg mx-auto">
-          Your own shop page, unlimited customers, WhatsApp orders — free for
-          your first 3 months. No website costs, no commissions.
+          Your own shop page, WhatsApp orders and a QR poster for your
+          counter — free for 60 days. No website costs, no commission.
         </p>
         <Link
-          href="/signup"
+          href="/join"
           className="inline-block mt-7 rounded-xl bg-white text-berry font-bold px-8 py-3.5 hover:bg-white/90"
         >
           Open your shop free

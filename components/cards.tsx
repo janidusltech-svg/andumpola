@@ -13,6 +13,8 @@ export function ProductCard({ product }: { product: Product }) {
   const isNew =
     Date.now() - new Date(product.created_at).getTime() < NEW_DAYS * 86400000;
   const sizes = Object.values(product.sizes ?? {});
+  // clothing photos are tall; furniture/electronics are wide → show whole item
+  const tall = !product.vertical || product.vertical === "clothing";
   const soldOut =
     !!product.sold_out ||
     (sizes.length > 0 && sizes.every((q) => Number(q) <= 0));
@@ -22,13 +24,17 @@ export function ProductCard({ product }: { product: Product }) {
         <SaveButton productId={product.id} />
       </div>
       <Link href={`/${product.shops?.slug}/${product.id}`} className="block">
-        <div className="aspect-[3/4] bg-sand overflow-hidden relative">
+        <div
+          className={`${tall ? "aspect-[3/4]" : "aspect-square bg-white"} bg-sand overflow-hidden relative`}
+        >
           {img ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={img}
               alt={product.title}
-              className={`h-full w-full object-cover group-hover:scale-105 transition-transform duration-300 ${
+              loading="lazy"
+              decoding="async"
+              className={`h-full w-full ${tall ? "object-cover" : "object-contain p-2"} group-hover:scale-105 transition-transform duration-300 ${
                 soldOut ? "opacity-60 grayscale-[40%]" : ""
               }`}
             />
@@ -66,16 +72,18 @@ export function ProductCard({ product }: { product: Product }) {
             </span>
           )}
         </div>
-        <div className="p-3.5">
+        <div className="p-3 sm:p-3.5">
           <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem] mb-2">
             {product.title}
           </p>
-          <span className="tag-price">{formatLKR(product.price)}</span>
-          {onSale && (
-            <span className="ml-2 text-xs text-soft line-through">
-              {formatLKR(product.compare_at_price!)}
-            </span>
-          )}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="tag-price whitespace-nowrap">{formatLKR(product.price)}</span>
+            {onSale && (
+              <span className="text-[11px] text-soft line-through whitespace-nowrap">
+                {formatLKR(product.compare_at_price!)}
+              </span>
+            )}
+          </div>
           {product.colors && product.colors.length > 0 && (
             <div className="flex items-center gap-1 mt-2">
               {product.colors.slice(0, 5).map((c) => (

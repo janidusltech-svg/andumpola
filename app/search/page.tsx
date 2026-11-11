@@ -96,6 +96,7 @@ export default async function SearchPage({
   );
 
   const selectedProvince = PROVINCES.find((p) => p.name === province);
+  const activeFilters = [province, district, color, min, max, safeSize, sort].filter(Boolean).length;
 
   // helper to build a query string preserving other filters
   function qs(next: Record<string, string | undefined>) {
@@ -136,8 +137,28 @@ export default async function SearchPage({
         </Suspense>
       </div>
 
+      {/* All filters fold into one panel so products show first on phones */}
+      <details className="group mb-4 rounded-xl bg-white border border-line" open={false}>
+        <summary className="flex items-center justify-between cursor-pointer list-none px-4 py-3 font-semibold [&::-webkit-details-marker]:hidden">
+          <span className="flex items-center gap-2">
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2">
+              <path d="M3 5h18M6 12h12M10 19h4" strokeLinecap="round" />
+            </svg>
+            Filters
+            {activeFilters > 0 && (
+              <span className="rounded-full bg-berry text-white text-xs px-2 py-0.5">
+                {activeFilters}
+              </span>
+            )}
+          </span>
+          <span className="text-soft text-sm group-open:hidden">
+            Location · Price · Size · Colour ▾
+          </span>
+          <span className="text-soft text-sm hidden group-open:inline">Close ▴</span>
+        </summary>
+        <div className="px-3 pb-3 space-y-3">
       {/* Location filter */}
-      <div className="mb-4 rounded-xl bg-white border border-line p-4">
+      <div className="rounded-lg bg-sand/60 p-3">
         <p className="text-sm font-semibold mb-2">Filter by location</p>
         <div className="flex flex-wrap gap-2 items-center">
           <Link
@@ -198,7 +219,7 @@ export default async function SearchPage({
       {/* Price, size & sort */}
       <form
         action="/search"
-        className="mb-4 rounded-xl bg-white border border-line p-4"
+        className="rounded-lg bg-sand/60 p-3"
       >
         {Object.entries({ q, category, province, district, audience, color, vertical })
           .filter(([, v]) => v)
@@ -260,7 +281,7 @@ export default async function SearchPage({
       </form>
 
       {/* Colour filter */}
-      <div className="mb-4 rounded-xl bg-white border border-line p-4">
+      <div className="rounded-lg bg-sand/60 p-3">
         <p className="text-sm font-semibold mb-2">Filter by colour</p>
         <div className="flex flex-wrap gap-2">
           <Link
@@ -293,8 +314,11 @@ export default async function SearchPage({
         </div>
       </div>
 
+        </div>
+      </details>
+
       {/* Category filter */}
-      <div className="mb-8">
+      <div className="mb-6">
         <CategoryPicker
           categories={(categories as Category[]) ?? []}
           activeSlug={category}
@@ -305,7 +329,7 @@ export default async function SearchPage({
       </div>
 
       {products && products.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {(products as Product[]).map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

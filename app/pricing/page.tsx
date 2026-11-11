@@ -35,7 +35,7 @@ export default function PricingPage() {
         </p>
         <p className="mt-2 text-white/90">
           Full Pro access · up to 150 products · online orders ·{" "}
-          {PLANS.trial.aiPhotos} free AI product photos. No payment needed to start.
+          free AI product photos (coming soon). No payment needed to start.
         </p>
         <Link
           href="/signup"
