@@ -7,6 +7,7 @@ import { formatLKR } from "@/lib/types";
 import { shopExpiry, fmtDate, planInfo } from "@/lib/plan";
 import PlanControls from "@/components/admin/PlanControls";
 import ShopStatusButtons from "@/components/admin/ShopStatusButtons";
+import OwnerTools from "@/components/admin/OwnerTools";
 
 export const dynamic = "force-dynamic";
 
@@ -159,6 +160,15 @@ export default async function AdminShopDetail({
           <Mini label="Views (30d)" value={views.count ?? 0} />
           <Mini label="WhatsApp orders (30d)" value={leads.count ?? 0} />
         </div>
+      </div>
+
+      <div className="mt-4">
+        <OwnerTools
+          shopId={shop.id}
+          shopName={shop.name}
+          slug={shop.slug}
+          phone={String(shop.whatsapp || shop.phone || "")}
+        />
       </div>
 
       {/* Tools */}

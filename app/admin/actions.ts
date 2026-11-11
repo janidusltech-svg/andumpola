@@ -4,6 +4,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { slugify, RESERVED_SLUGS } from "@/lib/slug";
+import { toWaNumber } from "@/lib/order-status";
 
 async function assertAdmin() {
   const supabase = await createClient();
@@ -252,4 +254,138 @@ export async function resolveReport(reportId: string) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/reports");
   revalidatePath("/admin");
+}
+
+// ============================================================
+// Assisted sign-up: admin creates the owner's login + shop
+// ============================================================
+function makePassword() {
+  // easy to read out / type on a phone: e.g. "pola-4827-kd"
+  const words = ["pola", "shop", "lanka", "kade", "sale", "andum"];
+  const w = words[Math.floor(Math.random() * words.length)];
+  const n = Math.floor(1000 + Math.random() * 9000);
+  const abc = "abcdefghjkmnpqrstuvwxyz";
+  const l =
+    abc[Math.floor(Math.random() * abc.length)] +
+    abc[Math.floor(Math.random() * abc.length)];
+  return `${w}-${n}-${l}`;
+}
+
+export type AssistedResult = {
+  shopId: string;
+  slug: string;
+  email: string;
+  password: string;
+};
+
+export async function createShopForOwner(input: {
+  shopName: string;
+  ownerName: string;
+  email?: string;
+  phone: string;
+  whatsapp?: string;
+  city?: string;
+  district?: string;
+  vertical: "clothing" | "furniture" | "electronics";
+}): Promise<AssistedResult> {
+  await assertAdmin();
+  const db = supabaseAdmin();
+
+  const shopName = input.shopName.trim();
+  const phone = input.phone.replace(/[^0-9+]/g, "");
+  if (shopName.length < 3) throw new Error("Shop name is too short");
+  if (phone.replace(/\D/g, "").length < 9) throw new Error("Enter a valid phone number");
+  if (!["clothing", "furniture", "electronics"].includes(input.vertical))
+    throw new Error("Pick what the shop sells");
+
+  // Owners without email log in with phone@owners.andumpola.lk
+  const email = (
+    input.email?.trim() ||
+    `${toWaNumber(phone)}@owners.andumpola.lk`
+  ).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Invalid email");
+
+  // unique, allowed URL
+  const base = slugify(shopName);
+  if (base.length < 3) throw new Error("Shop name needs at least 3 letters");
+  let slug = RESERVED_SLUGS.includes(base) ? `${base}-shop` : base;
+  for (let i = 2; i < 50; i++) {
+    const { data: taken } = await db
+      .from("shops")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (!taken) break;
+    slug = `${base}-${i}`;
+  }
+
+  const password = makePassword();
+  const { data: created, error: userErr } = await db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: input.ownerName.trim(), phone },
+  });
+  if (userErr || !created.user) {
+    throw new Error(
+      userErr?.message?.includes("already")
+        ? "That email / phone already has an account. Use a different email."
+        : userErr?.message || "Could not create the login"
+    );
+  }
+  const uid = created.user.id;
+
+  // make sure the profile is a shop owner (works with or without a DB trigger)
+  const { error: profErr } = await db.from("profiles").upsert(
+    { id: uid, full_name: input.ownerName.trim() || shopName, role: "shop_owner" },
+    { onConflict: "id" }
+  );
+  if (profErr) {
+    await db.auth.admin.deleteUser(uid);
+    throw new Error("Profile error: " + profErr.message);
+  }
+
+  const { data: shop, error: shopErr } = await db
+    .from("shops")
+    .insert({
+      owner_id: uid,
+      name: shopName,
+      slug,
+      whatsapp: toWaNumber(input.whatsapp?.trim() || phone),
+      phone,
+      city: input.city?.trim() || null,
+      district: input.district?.trim() || null,
+      vertical: input.vertical,
+      shop_type: "retail",
+      shop_mode: "both",
+      status: "active", // you've met them in person
+    })
+    .select("id")
+    .single();
+  if (shopErr || !shop) {
+    await db.auth.admin.deleteUser(uid); // don't leave a login with no shop
+    throw new Error("Shop error: " + (shopErr?.message ?? "unknown"));
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/shops");
+  return { shopId: shop.id, slug, email, password };
+}
+
+/** New password for an owner who forgot theirs (shown to admin once) */
+export async function resetOwnerPassword(shopId: string) {
+  await assertAdmin();
+  const db = supabaseAdmin();
+  const { data: shop } = await db
+    .from("shops")
+    .select("owner_id")
+    .eq("id", shopId)
+    .single();
+  if (!shop) throw new Error("Shop not found");
+  const password = makePassword();
+  const { data, error } = await db.auth.admin.updateUserById(shop.owner_id, {
+    password,
+  });
+  if (error) throw new Error(error.message);
+  return { email: data.user?.email ?? "", password };
 }

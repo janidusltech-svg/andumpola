@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import GoogleButton from "@/components/GoogleButton";
 import { createClient } from "@/lib/supabase/client";
+import { toWaNumber } from "@/lib/order-status";
 
 function LoginForm() {
   const router = useRouter();
@@ -18,8 +19,14 @@ function LoginForm() {
   async function submit() {
     setError("");
     setLoading(true);
+    // Shops we signed up without email log in with their phone number
+    const id = email.trim();
+    const loginEmail =
+      !id.includes("@") && /^[+0-9\s-]{9,15}$/.test(id)
+        ? `${toWaNumber(id)}@owners.andumpola.lk`
+        : id;
     const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: loginEmail,
       password,
     });
     setLoading(false);
@@ -38,9 +45,11 @@ function LoginForm() {
 
       <div className="space-y-3 bg-white border border-line rounded-xl p-6">
         <label className="block">
-          <span className="text-sm font-medium">Email</span>
+          <span className="text-sm font-medium">Email or phone number</span>
           <input
-            type="email"
+            type="text"
+            inputMode="email"
+            autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}

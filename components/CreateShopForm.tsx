@@ -1,5 +1,6 @@
 "use client";
 import { toWaNumber } from "@/lib/order-status";
+import { slugify, RESERVED_SLUGS } from "@/lib/slug";
 // components/CreateShopForm.tsx
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -10,22 +11,6 @@ import ProvinceDistrictSelect from "@/components/ProvinceDistrictSelect";
 import CroppedFileField from "@/components/CroppedFileField";
 import LocationPicker from "@/components/LocationPicker";
 import { SHOP_TYPES, SHOP_MODES } from "@/lib/types";
-
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-// Route names a shop can never use as its URL
-const RESERVED_SLUGS = [
-  "shops", "search", "login", "signup", "dashboard", "admin", "account",
-  "track", "order", "orders", "api", "auth", "about", "terms", "privacy",
-  "contact", "help", "andumpola",
-];
 
 export default function CreateShopForm() {
   const router = useRouter();

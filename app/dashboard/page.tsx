@@ -97,6 +97,13 @@ export default async function DashboardHome() {
 
       <InstallApp />
       <ShareKit slug={shop.slug} name={shop.name} />
+      <a
+        href={`/print/${shop.slug}`}
+        target="_blank"
+        className="mt-3 mb-6 inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2.5 text-sm font-semibold hover:border-berry"
+      >
+        🖨️ Print a QR poster for your counter
+      </a>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Stat label="Products" value={String(productCount ?? 0)} />

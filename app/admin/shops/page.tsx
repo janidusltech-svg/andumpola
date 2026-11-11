@@ -49,7 +49,15 @@ export default async function AdminShopsPage({
 
   return (
     <div>
-      <h1 className="display text-2xl font-bold mb-4">Shops</h1>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h1 className="display text-2xl font-bold">Shops</h1>
+        <Link
+          href="/admin/shops/new"
+          className="rounded-lg bg-berry text-white text-sm font-semibold px-4 py-2"
+        >
+          + Sign up a shop
+        </Link>
+      </div>
 
       <form className="mb-3">
         {filter && <input type="hidden" name="filter" value={filter} />}
