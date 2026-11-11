@@ -27,13 +27,13 @@ export default function ShopStatusButtons({
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="flex gap-2">
-        {status !== "active" && (
+        {status === "pending" && (
           <button
             onClick={() => act("active")}
             disabled={pending}
             className="rounded-lg bg-leaf text-white text-sm font-semibold px-4 py-2 disabled:opacity-60"
           >
-            {status === "pending" ? "Approve" : "Activate"}
+            Approve
           </button>
         )}
         {status !== "suspended" && (

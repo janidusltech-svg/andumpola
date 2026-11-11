@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/types";
+import { shopExpiry } from "@/lib/plan";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export default async function AdminHome() {
     { data: pendingSubs },
     { data: approvedSubs },
     { data: recentShops },
+    { data: planShops },
   ] = await Promise.all([
     supabase.from("shops").select("*", { count: "exact", head: true }),
     supabase
@@ -46,10 +48,21 @@ export default async function AdminHome() {
       .eq("status", "approved"),
     supabase
       .from("shops")
-      .select("name, slug, status, created_at")
+      .select("id, name, slug, status, created_at")
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("shops")
+      .select("id, name, plan, status, trial_ends_at, subscription_ends_at")
+      .eq("status", "active"),
   ]);
+
+  const withExp = (planShops ?? []).map((s) => ({ ...s, exp: shopExpiry(s) }));
+  const needAttention = withExp
+    .filter((s) => s.exp.expired || s.exp.expiringSoon)
+    .sort((a, b) => a.exp.daysLeft - b.exp.daysLeft);
+  const onTrial = withExp.filter((s) => s.plan === "trial" && !s.exp.expired).length;
+  const paying = withExp.filter((s) => s.plan !== "trial" && !s.exp.expired).length;
 
   const revenue =
     approvedSubs?.reduce((sum, p) => sum + Number(p.amount), 0) ?? 0;
@@ -104,6 +117,39 @@ export default async function AdminHome() {
         <Stat label="Suspended" value={String(suspendedShops ?? 0)} />
       </div>
 
+      <SectionTitle>Plans (active shops)</SectionTitle>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+        <Stat label="On free trial" value={String(onTrial)} />
+        <Stat label="Paying" value={String(paying)} tone="leaf" />
+        <Stat
+          label="Ending soon / expired"
+          value={String(needAttention.length)}
+          tone={needAttention.length > 0 ? "berry" : undefined}
+        />
+      </div>
+      {needAttention.length > 0 && (
+        <div className="bg-white border border-line rounded-xl divide-y divide-line mb-8">
+          {needAttention.slice(0, 8).map((s) => (
+            <Link
+              key={s.id}
+              href={`/admin/shops/${s.id}`}
+              className="flex items-center justify-between px-4 py-3 hover:bg-sand"
+            >
+              <span className="font-medium">{s.name}</span>
+              <span
+                className={`text-xs font-semibold ${
+                  s.exp.expired ? "text-berry" : "text-turmeric"
+                }`}
+              >
+                {s.exp.label} ·{" "}
+                {s.exp.expired ? "expired" : `${s.exp.daysLeft}d left`} →
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+      {needAttention.length === 0 && <div className="mb-8" />}
+
       <SectionTitle>Activity</SectionTitle>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         <Stat label="Total products" value={String(totalProducts ?? 0)} />
@@ -123,7 +169,7 @@ export default async function AdminHome() {
         {(recentShops ?? []).map((s) => (
           <Link
             key={s.slug}
-            href={`/admin/shops`}
+            href={`/admin/shops/${s.id}`}
             className="flex items-center justify-between px-4 py-3 hover:bg-sand"
           >
             <span className="font-medium">{s.name}</span>

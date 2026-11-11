@@ -270,7 +270,7 @@ export default function CreateShopForm() {
         {loading ? "Creating shop…" : "Create shop"}
       </button>
       <p className="text-xs text-soft">
-        Your shop starts a 90-day free trial and goes live after admin
+        Your shop starts a 60-day free trial and goes live after admin
         approval.
       </p>
     </div>

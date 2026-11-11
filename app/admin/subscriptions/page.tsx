@@ -76,6 +76,11 @@ export default async function AdminSubscriptionsPage({
                     {p.shops?.name}
                   </Link>
                   <StatusBadge status={p.status} />
+                  {p.method === "manual" && (
+                    <span className="text-[11px] rounded-full bg-sand border border-line px-2 py-0.5">
+                      cash
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-soft mt-1">
                   {p.plan.toUpperCase()} · {p.months} month(s) ·{" "}

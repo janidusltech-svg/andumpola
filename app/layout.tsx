@@ -66,8 +66,8 @@ export default function RootLayout({
                   Andum<span className="text-berry">Pola</span>
                 </span>
                 <p className="text-sm text-soft mt-2">
-                  Sri Lanka&apos;s online clothing market. Every clothing shop,
-                  one pola.
+                  The pola, now digital. Every Sri Lankan shop — clothing,
+                  furniture and electronics — in one place.
                 </p>
               </div>
 
