@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import SignOutButton from "@/components/SignOutButton";
+import { countNewOrders } from "@/lib/new-orders";
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,8 @@ export default async function DashboardLayout({
     .select("*")
     .eq("owner_id", user.id)
     .maybeSingle();
+
+  const newOrders = shop ? (await countNewOrders(supabase, shop.id)).total : 0;
 
   // No shop yet → force create-shop screen (except on the create route itself)
   const nav = [
@@ -58,9 +61,14 @@ export default async function DashboardLayout({
               <Link
                 key={n.href}
                 href={n.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white hover:text-berry whitespace-nowrap"
+                className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white hover:text-berry whitespace-nowrap inline-flex items-center gap-1.5"
               >
                 {n.label}
+                {n.href === "/dashboard/orders" && newOrders > 0 && (
+                  <span className="rounded-full bg-berry text-white text-[11px] font-bold px-1.5 min-w-[1.25rem] text-center">
+                    {newOrders}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>

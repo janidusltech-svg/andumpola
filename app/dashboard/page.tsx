@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import CreateShopForm from "@/components/CreateShopForm";
 import SetupGuide from "@/components/SetupGuide";
 import ShareKit from "@/components/ShareKit";
+import { countNewOrders } from "@/lib/new-orders";
 
 export default async function DashboardHome() {
   const supabase = await createClient();
@@ -59,6 +60,7 @@ export default async function DashboardHome() {
   ]);
 
   const pendingCount = pendingOrders?.length ?? 0;
+  const fresh = await countNewOrders(supabase, shop.id);
 
   return (
     <div>
@@ -70,6 +72,26 @@ export default async function DashboardHome() {
           it becomes visible to customers. You can add products in the
           meantime.
         </div>
+      )}
+
+      {fresh.total > 0 && (
+        <Link
+          href="/dashboard/orders"
+          className="mb-6 flex items-center justify-between gap-3 rounded-xl bg-berry text-white p-4 hover:bg-berry-dark"
+        >
+          <span className="font-semibold">
+            🔔 You have {fresh.total} new order{fresh.total > 1 ? "s" : ""}
+            <span className="block text-sm font-normal text-white/85">
+              {[
+                fresh.bank > 0 ? `${fresh.bank} online` : null,
+                fresh.whatsapp > 0 ? `${fresh.whatsapp} WhatsApp` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </span>
+          </span>
+          <span className="font-bold shrink-0">View →</span>
+        </Link>
       )}
 
       <ShareKit slug={shop.slug} name={shop.name} />

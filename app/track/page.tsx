@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { formatLKR } from "@/lib/types";
+import { statusInfo } from "@/lib/order-status";
 
 type OrderStatus = {
   order_ref: string;
@@ -128,19 +129,10 @@ function TrackInner() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    pending: "bg-turmeric/20 text-turmeric",
-    approved: "bg-leaf/15 text-leaf",
-    rejected: "bg-berry/15 text-berry",
-    delivered: "bg-ink/10 text-ink",
-  };
+  const info = statusInfo(status);
   return (
-    <span
-      className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-        map[status] || "bg-line"
-      }`}
-    >
-      {status}
+    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${info.cls}`}>
+      {info.emoji} {info.label}
     </span>
   );
 }
@@ -152,18 +144,9 @@ function StatusExplainer({
   status: string;
   note: string | null;
 }) {
-  const messages: Record<string, string> = {
-    pending:
-      "The shop is verifying your payment. You'll be confirmed once they check their account.",
-    approved:
-      "Your payment is confirmed and your order is being prepared for delivery. 🎉",
-    rejected:
-      "Unfortunately this order was rejected. If you already paid, contact the shop.",
-    delivered: "This order has been delivered. Thank you for shopping! 🛍️",
-  };
   return (
     <div className="rounded-lg bg-sand p-3 text-sm">
-      <p>{messages[status] || "Status updated."}</p>
+      <p>{statusInfo(status).customer}</p>
       {note && <p className="text-soft mt-1">Shop note: {note}</p>}
     </div>
   );

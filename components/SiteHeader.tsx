@@ -1,6 +1,7 @@
 // components/SiteHeader.tsx
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { countNewOrders } from "@/lib/new-orders";
 
 export default async function SiteHeader() {
   const supabase = await createClient();
@@ -18,6 +19,17 @@ export default async function SiteHeader() {
     role = profile?.role ?? null;
   }
   const isAdmin = role === "admin";
+
+  // New-order badge for shop owners
+  let newOrders = 0;
+  if (user && role === "shop_owner") {
+    const { data: shop } = await supabase
+      .from("shops")
+      .select("id")
+      .eq("owner_id", user.id)
+      .maybeSingle();
+    if (shop) newOrders = (await countNewOrders(supabase, shop.id)).total;
+  }
   const isCustomer = role === "customer";
 
   return (
@@ -115,9 +127,14 @@ export default async function SiteHeader() {
               )}
               <Link
                 href="/dashboard"
-                className="btn btn-primary !py-2 !px-3 sm:!px-4 whitespace-nowrap"
+                className="btn btn-primary !py-2 !px-3 sm:!px-4 whitespace-nowrap relative"
               >
                 My shop
+                {newOrders > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 rounded-full bg-turmeric text-ink text-[11px] font-bold min-w-[1.25rem] h-5 px-1 flex items-center justify-center ring-2 ring-paper">
+                    {newOrders}
+                  </span>
+                )}
               </Link>
             </>
           )}
