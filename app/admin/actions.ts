@@ -210,7 +210,7 @@ export async function recordManualPayment(
 }
 
 /** status change that re-opens a shop closed for non-payment */
-function reopen(status: string) {
+function reopen(status: string): Record<string, string> {
   return status === "expired" ? { status: "active" } : {};
 }
 
