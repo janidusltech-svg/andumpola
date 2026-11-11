@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CreateShopForm from "@/components/CreateShopForm";
 import SetupGuide from "@/components/SetupGuide";
+import ShareKit from "@/components/ShareKit";
 
 export default async function DashboardHome() {
   const supabase = await createClient();
@@ -70,6 +71,8 @@ export default async function DashboardHome() {
           meantime.
         </div>
       )}
+
+      <ShareKit slug={shop.slug} name={shop.name} />
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Stat label="Products" value={String(productCount ?? 0)} />
