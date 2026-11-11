@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   ),
   title: {
-    default: "AndumPola — ඇඳුම්පොළ | Sri Lanka's Online Marketplace",
+    default: "AndumPola | Sri Lanka's Online Marketplace",
     template: "%s",
   },
   description:

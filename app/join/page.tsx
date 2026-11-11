@@ -4,6 +4,7 @@ import { supabasePublic } from "@/lib/supabase/public";
 import { ShopCard } from "@/components/cards";
 import { PLANS, PAID_PLANS } from "@/lib/plan";
 import { formatLKR, Shop } from "@/lib/types";
+import { T } from "@/lib/i18n";
 
 export const revalidate = 300;
 
@@ -32,33 +33,30 @@ export default async function JoinPage() {
       {/* Hero */}
       <div className="text-center">
         <p className="inline-block rounded-full bg-berry/10 text-berry text-sm font-semibold px-3 py-1">
-          For shop owners · සාප්පු හිමියන්ට
+          <T k="joinBadge" />
         </p>
         <h1 className="display text-3xl sm:text-5xl font-extrabold leading-tight mt-4">
-          Your shop online, <span className="text-berry">free for 60 days.</span>
+          <T k="joinTitleA" /> <span className="text-berry"><T k="joinTitleB" /></span>
         </h1>
-        <p className="mt-2 text-lg sm:text-xl font-semibold">
-          ඔබේ සාප්පුවට ම වෙබ් අඩවියක් — දින 60ක් නොමිලේ.
-        </p>
-        <p className="mt-3 text-soft">
-          No website cost. No commission. Customers order straight to your
-          WhatsApp.
+        <p className="mt-3 text-soft sm:text-lg">
+          <T k="joinSub" />
         </p>
       </div>
 
       {/* How it works */}
       <div className="mt-10 grid sm:grid-cols-3 gap-3">
-        {[
-          ["1", "Sign up in 2 minutes", "විනාඩි 2න් ලියාපදිංචි වන්න"],
-          ["2", "Add product photos & prices", "භාණ්ඩ ඡායාරූප සහ මිල දාන්න"],
-          ["3", "Share your link — get WhatsApp orders", "ලින්ක් එක share කරන්න — WhatsApp ඇණවුම් ගන්න"],
-        ].map(([n, en, si]) => (
+        {(
+          [
+            ["1", "joinStep1"],
+            ["2", "joinStep2"],
+            ["3", "joinStep3"],
+          ] as const
+        ).map(([n, k]) => (
           <div key={n} className="rounded-2xl bg-white border border-line p-5">
             <span className="h-8 w-8 rounded-full bg-berry text-white font-bold flex items-center justify-center">
               {n}
             </span>
-            <p className="font-semibold mt-3">{en}</p>
-            <p className="text-sm text-soft mt-1">{si}</p>
+            <p className="font-semibold mt-3"><T k={k} /></p>
           </div>
         ))}
       </div>

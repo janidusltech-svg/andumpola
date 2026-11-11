@@ -1,6 +1,6 @@
 // components/SiteHeader.tsx
 import Link from "next/link";
-import { LanguageSwitcher, T } from "@/lib/i18n";
+import { LanguageSwitcher, LangOnly, T } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/server";
 import { countNewOrders } from "@/lib/new-orders";
 import CartIcon from "@/components/CartIcon";
@@ -46,10 +46,12 @@ export default async function SiteHeader() {
             className="h-7 w-7 min-[390px]:h-8 min-[390px]:w-8 sm:h-9 sm:w-9 rounded-lg shrink-0"
           />
           <span>
-            <span className="hidden sm:block text-[10px] tracking-wide text-berry font-semibold">
+            <LangOnly langs={["si"]}>
+              <span className="hidden sm:block text-[10px] tracking-wide text-berry font-semibold">
               ඇඳුම්පොළ
             </span>
-            <span className="display text-[17px] min-[390px]:text-xl sm:text-2xl font-extrabold text-ink">
+            </LangOnly>
+            <span className="brand-word display text-[17px] min-[390px]:text-xl sm:text-2xl font-extrabold text-ink">
               Andum<span className="text-berry">Pola</span>
             </span>
           </span>
@@ -154,9 +156,14 @@ export default async function SiteHeader() {
               )}
               <Link
                 href="/dashboard"
-                className="btn btn-primary !py-2 !px-3 sm:!px-4 whitespace-nowrap relative"
+                aria-label="My shop"
+                className="btn btn-primary !py-2 !px-2.5 sm:!px-4 whitespace-nowrap relative"
               >
-                My shop
+                {/* store icon on phones, text on bigger screens */}
+                <svg viewBox="0 0 24 24" className="h-5 w-5 sm:hidden fill-none stroke-current" strokeWidth="2">
+                  <path d="M4 10v10h16V10M3 4h18l-1.5 6a2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 1-5 0L3 4Z" strokeLinejoin="round" />
+                </svg>
+                <span className="hidden sm:inline">My shop</span>
                 {newOrders > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 rounded-full bg-turmeric text-ink text-[11px] font-bold min-w-[1.25rem] h-5 px-1 flex items-center justify-center ring-2 ring-paper">
                     {newOrders}

@@ -48,24 +48,24 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-8">
+    <div className="mx-auto max-w-6xl px-4 py-5 md:py-8">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-8">
         {/* Sidebar */}
         <aside className="md:w-56 shrink-0">
-          <div className="bg-white border border-line rounded-xl p-4">
-            <p className="text-xs text-soft">Shop</p>
-            <p className="display font-bold truncate">
+          <div className="bg-white border border-line rounded-xl px-4 py-3 md:p-4 flex items-center justify-between gap-3 md:block">
+            <p className="text-xs text-soft hidden md:block">Shop</p>
+            <p className="display font-bold truncate min-w-0">
               {shop?.name || "Not set up yet"}
             </p>
             {shop && <ShopStatus shop={shop} />}
           </div>
 
-          <nav className="mt-4 flex md:flex-col gap-1 overflow-x-auto">
+          <nav className="mt-3 md:mt-4 flex md:flex-col gap-1.5 md:gap-1 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1 [scrollbar-width:none]">
             {nav.map((n) => (
               <Link
                 key={n.href}
                 href={n.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white hover:text-berry whitespace-nowrap inline-flex items-center gap-1.5"
+                className="shrink-0 rounded-full md:rounded-lg border border-line bg-white md:border-0 md:bg-transparent px-3.5 md:px-3 py-1.5 md:py-2 text-sm font-medium hover:bg-white hover:text-berry whitespace-nowrap inline-flex items-center gap-1.5"
               >
                 {n.label}
                 {n.href === "/dashboard/orders" && newOrders > 0 && (
@@ -85,12 +85,13 @@ export default async function DashboardLayout({
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-leaf text-white text-sm font-semibold px-3 py-2.5 hover:opacity-90"
+            className="mt-3 md:mt-4 flex items-center justify-center gap-2 rounded-lg bg-leaf text-white text-sm font-semibold px-3 py-2 md:py-2.5 hover:opacity-90"
           >
             💬 Need help? WhatsApp us
           </a>
 
-          <div className="mt-4">
+          {/* on phones, sign out lives in the Account page (top-right icon) */}
+          <div className="mt-4 hidden md:block">
             <SignOutButton />
           </div>
         </aside>
@@ -140,7 +141,7 @@ function ShopStatus({ shop }: { shop: PlanShop }) {
 
   return (
     <span
-      className={`inline-block mt-2 rounded-full px-2.5 py-1 text-[11px] font-medium ${color}`}
+      className={`inline-block shrink-0 md:mt-2 rounded-full px-2.5 py-1 text-[11px] font-medium ${color}`}
     >
       {label}
     </span>

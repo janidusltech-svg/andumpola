@@ -46,27 +46,28 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-8">
+    <div className="mx-auto max-w-6xl px-4 py-5 md:py-8">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-8">
         <aside className="md:w-56 shrink-0">
-          <div className="bg-berry text-white rounded-xl p-4">
+          <div className="hidden md:block bg-berry text-white rounded-xl p-4">
             <p className="text-xs text-white/70">AndumPola Admin</p>
             <p className="display font-bold truncate">
               {profile?.full_name || "Admin"}
             </p>
           </div>
-          <nav className="mt-4 flex md:flex-col gap-1 overflow-x-auto">
+          <nav className="mt-3 md:mt-4 flex md:flex-col gap-1.5 md:gap-1 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1 [scrollbar-width:none]">
             {nav.map((n) => (
               <Link
                 key={n.href}
                 href={n.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white hover:text-berry whitespace-nowrap"
+                className="shrink-0 rounded-full md:rounded-lg border border-line bg-white md:border-0 md:bg-transparent px-3.5 md:px-3 py-1.5 md:py-2 text-sm font-medium hover:bg-white hover:text-berry whitespace-nowrap"
               >
                 {n.label}
               </Link>
             ))}
           </nav>
-          <div className="mt-4">
+          {/* on phones, sign out lives in the Account page (top-right icon) */}
+          <div className="mt-4 hidden md:block">
             <SignOutButton />
           </div>
         </aside>

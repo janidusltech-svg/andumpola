@@ -25,6 +25,32 @@ const DICT = {
   cart: ["Cart", "කරත්තය", "கூடை"],
   account: ["Account", "ගිණුම", "கணக்கு"],
   login: ["Log in", "ඇතුල් වන්න", "உள்நுழை"],
+  // counter poster
+  posterScan: ["Scan to see our products", "අපේ භාණ්ඩ බලන්න ස්කෑන් කරන්න", "எங்கள் பொருட்களைப் பார்க்க ஸ்கேன் செய்யுங்கள்"],
+  posterOrder: ["& order on WhatsApp", "සහ WhatsApp හරහා ඇණවුම් කරන්න", "மற்றும் WhatsApp இல் ஆர்டர் செய்யுங்கள்"],
+  posterFooter: ["Our online shop on", "අපේ ඔන්ලයින් සාප්පුව", "எங்கள் ஆன்லைன் கடை"],
+  posterHint: [
+    "Print on A4 (or save as PDF) and stick it at the counter.",
+    "A4 කඩදාසියක මුද්‍රණය කර (හෝ PDF ලෙස සුරකින්න) කවුන්ටරයේ අලවන්න.",
+    "A4 இல் அச்சிட்டு (அல்லது PDF ஆக சேமித்து) கவுண்டரில் ஒட்டவும்.",
+  ],
+  printPdf: ["Print / Save PDF", "මුද්‍රණය / PDF", "அச்சிடு / PDF"],
+  // join page
+  joinBadge: ["For shop owners", "සාප්පු හිමියන්ට", "கடை உரிமையாளர்களுக்கு"],
+  joinTitleA: ["Your shop online,", "ඔබේ සාප්පුව ඔන්ලයින්,", "உங்கள் கடை ஆன்லைனில்,"],
+  joinTitleB: ["free for 60 days.", "දින 60ක් නොමිලේ.", "60 நாட்கள் இலவசம்."],
+  joinSub: [
+    "No website cost. No commission. Customers order straight to your WhatsApp.",
+    "වෙබ් අඩවි වියදමක් නැහැ. කොමිස් නැහැ. පාරිභෝගිකයෝ කෙලින්ම ඔබේ WhatsApp එකට ඇණවුම් කරනවා.",
+    "இணையதளச் செலவு இல்லை. கமிஷன் இல்லை. வாடிக்கையாளர்கள் நேரடியாக உங்கள் WhatsApp க்கு ஆர்டர் செய்வார்கள்.",
+  ],
+  joinStep1: ["Sign up in 2 minutes", "විනාඩි 2න් ලියාපදිංචි වන්න", "2 நிமிடங்களில் பதிவு செய்யுங்கள்"],
+  joinStep2: ["Add product photos & prices", "භාණ්ඩ ඡායාරූප සහ මිල දාන්න", "பொருட்களின் புகைப்படங்கள் மற்றும் விலைகளைச் சேர்க்கவும்"],
+  joinStep3: [
+    "Share your link — get WhatsApp orders",
+    "ඔබේ ලින්ක් එක share කරන්න — WhatsApp ඇණවුම් ගන්න",
+    "உங்கள் இணைப்பைப் பகிருங்கள் — WhatsApp ஆர்டர்களைப் பெறுங்கள்",
+  ],
   soldOut: ["Sold out", "අවසන්", "விற்றுத் தீர்ந்தது"],
   soldOutNow: ["Sold out right now", "දැනට තොග අවසන්", "தற்போது இருப்பில் இல்லை"],
   askComeback: [
@@ -94,6 +120,12 @@ export function useT() {
 export function T({ k }: { k: TKey }) {
   const t = useT();
   return <>{t(k)}</>;
+}
+
+/** Render children only in the listed languages (e.g. Sinhala-only extras) */
+export function LangOnly({ langs, children }: { langs: Lang[]; children: React.ReactNode }) {
+  const { lang } = useLang();
+  return langs.includes(lang) ? <>{children}</> : null;
 }
 
 export function LanguageSwitcher() {

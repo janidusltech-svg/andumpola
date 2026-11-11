@@ -12,7 +12,7 @@ export default function AboutPage() {
       </div>
       <h1 className="display text-3xl sm:text-4xl font-bold mb-2">About AndumPola</h1>
       <p className="text-berry font-medium mb-8">
-        ඇඳුම්පොළ — every clothing shop, one pola.
+        Every Sri Lankan shop, one pola.
       </p>
 
       <div className="prose-custom space-y-6 text-ink">
