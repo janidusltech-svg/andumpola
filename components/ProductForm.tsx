@@ -27,6 +27,10 @@ export default function ProductForm({
     title: existing?.title ?? "",
     description: existing?.description ?? "",
     price: existing ? String(existing.price) : "",
+    compare_at_price: existing?.compare_at_price
+      ? String(existing.compare_at_price)
+      : "",
+    sold_out: existing?.sold_out ?? false,
     category_id: existing?.category_id ?? categories[0]?.id ?? "",
     audience: existing?.audience ?? "unisex",
     wholesale_only: existing?.wholesale_only ?? false,
@@ -97,6 +101,11 @@ export default function ProductForm({
         title: f.title.trim(),
         description: f.description.trim() || null,
         price: parseFloat(f.price),
+        compare_at_price:
+          f.compare_at_price && parseFloat(f.compare_at_price) > parseFloat(f.price)
+            ? parseFloat(f.compare_at_price)
+            : null,
+        sold_out: f.sold_out,
         category_id: f.category_id,
         audience: f.audience,
         colors,
@@ -148,6 +157,22 @@ export default function ProductForm({
             placeholder="2450"
             className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
           />
+        </label>
+        <label className="block">
+          <span className="text-sm font-medium">
+            Original price (optional — for a sale)
+          </span>
+          <input
+            type="number"
+            value={f.compare_at_price}
+            onChange={(e) => setF({ ...f, compare_at_price: e.target.value })}
+            placeholder="3500"
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+          />
+          <span className="text-[11px] text-soft">
+            If higher than the price, customers see it crossed out with a SALE
+            badge.
+          </span>
         </label>
         <label className="block">
           <span className="text-sm font-medium">Category *</span>
@@ -493,6 +518,18 @@ export default function ProductForm({
           className="h-4 w-4 accent-[color:var(--color-berry)]"
         />
         <span className="text-sm">Show this product to customers</span>
+      </label>
+
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={f.sold_out}
+          onChange={(e) => setF({ ...f, sold_out: e.target.checked })}
+          className="h-4 w-4 accent-[color:var(--color-berry)]"
+        />
+        <span className="text-sm">
+          Sold out (still shown, customers can ask on WhatsApp)
+        </span>
       </label>
 
       {error && <p className="text-sm text-berry">{error}</p>}

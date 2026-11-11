@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "@/lib/order-status";
 // components/ShopSettingsForm.tsx
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,9 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
     tiktok_url: shop.tiktok_url ?? "",
     business_hours: shop.business_hours ?? "",
     announcement: shop.announcement ?? "",
+    delivery_areas: shop.delivery_areas ?? "",
+    delivery_fee: shop.delivery_fee ?? "",
+    cash_on_delivery: shop.cash_on_delivery ?? false,
   });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     shop.latitude != null && shop.longitude != null
@@ -66,7 +70,7 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
       const patch: Record<string, unknown> = {
         name: f.name.trim(),
         description: f.description.trim() || null,
-        whatsapp: f.whatsapp.replace(/[^0-9]/g, ""),
+        whatsapp: toWaNumber(f.whatsapp),
         phone: f.phone.trim(),
         province: f.province || null,
         district: f.district || null,
@@ -84,6 +88,9 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
         tiktok_url: f.tiktok_url.trim() || null,
         business_hours: f.business_hours.trim() || null,
         announcement: f.announcement.trim() || null,
+        delivery_areas: f.delivery_areas.trim() || null,
+        delivery_fee: f.delivery_fee.trim() || null,
+        cash_on_delivery: f.cash_on_delivery,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
         updated_at: new Date().toISOString(),
@@ -218,6 +225,43 @@ export default function ShopSettingsForm({ shop }: { shop: ShopFull }) {
             className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
           />
         </label>
+
+        <div className="rounded-xl bg-sand border border-line p-4 space-y-3">
+          <p className="text-sm font-semibold">🚚 Delivery</p>
+          <label className="block">
+            <span className="text-sm font-medium">Where do you deliver?</span>
+            <input
+              value={f.delivery_areas}
+              onChange={(e) => setF({ ...f, delivery_areas: e.target.value })}
+              placeholder="Islandwide · or · Colombo & Gampaha only"
+              className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium">Delivery charge</span>
+            <input
+              value={f.delivery_fee}
+              onChange={(e) => setF({ ...f, delivery_fee: e.target.value })}
+              placeholder="Rs 350 · Free over Rs 5,000"
+              className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2.5 outline-none focus:ring-2 focus:ring-berry/40"
+            />
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={f.cash_on_delivery}
+              onChange={(e) =>
+                setF({ ...f, cash_on_delivery: e.target.checked })
+              }
+              className="h-4 w-4 accent-berry"
+            />
+            Cash on delivery available
+          </label>
+          <p className="text-[11px] text-soft">
+            Shown on your shop and every product — customers stop asking the
+            same questions on WhatsApp.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">

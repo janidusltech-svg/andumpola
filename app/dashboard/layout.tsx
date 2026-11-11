@@ -6,6 +6,9 @@ import SignOutButton from "@/components/SignOutButton";
 import { countNewOrders } from "@/lib/new-orders";
 import { shopExpiry, fmtDate } from "@/lib/plan";
 
+// AndumPola support WhatsApp (change here if the number changes)
+const SUPPORT_WA = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "94772453769";
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -73,6 +76,19 @@ export default async function DashboardLayout({
               </Link>
             ))}
           </nav>
+
+          <a
+            href={`https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent(
+              `Hi AndumPola team! I need help with my shop${
+                shop?.name ? ` "${shop.name}"` : ""
+              }.`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-leaf text-white text-sm font-semibold px-3 py-2.5 hover:opacity-90"
+          >
+            💬 Need help? WhatsApp us
+          </a>
 
           <div className="mt-4">
             <SignOutButton />

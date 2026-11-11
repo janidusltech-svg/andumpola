@@ -4,8 +4,18 @@ import { Product, Shop, formatLKR, colorHex } from "@/lib/types";
 import { getVertical } from "@/lib/verticals";
 import SaveButton from "@/components/SaveButton";
 
+const NEW_DAYS = 14;
+
 export function ProductCard({ product }: { product: Product }) {
   const img = product.images?.[0];
+  const onSale =
+    !!product.compare_at_price && product.compare_at_price > product.price;
+  const isNew =
+    Date.now() - new Date(product.created_at).getTime() < NEW_DAYS * 86400000;
+  const sizes = Object.values(product.sizes ?? {});
+  const soldOut =
+    !!product.sold_out ||
+    (sizes.length > 0 && sizes.every((q) => Number(q) <= 0));
   return (
     <div className="group relative rounded-2xl bg-white border border-line overflow-hidden hover:shadow-[0_12px_30px_rgba(27,23,32,0.08)] hover:-translate-y-0.5 transition-all">
       <div className="absolute top-2.5 right-2.5 z-10">
@@ -18,7 +28,9 @@ export function ProductCard({ product }: { product: Product }) {
             <img
               src={img}
               alt={product.title}
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className={`h-full w-full object-cover group-hover:scale-105 transition-transform duration-300 ${
+                soldOut ? "opacity-60 grayscale-[40%]" : ""
+              }`}
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center text-soft text-sm">
@@ -38,9 +50,19 @@ export function ProductCard({ product }: { product: Product }) {
               Wholesale only
             </span>
           )}
-          {product.is_featured && !product.wholesale_only && (
-            <span className="absolute top-2 left-2 bg-ink text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-              ⭐ Featured
+          {!product.wholesale_only && (soldOut || onSale || isNew || product.is_featured) && (
+            <span
+              className={`absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow ${
+                soldOut ? "bg-ink" : onSale ? "bg-berry" : isNew ? "bg-leaf" : "bg-ink"
+              }`}
+            >
+              {soldOut
+                ? "Sold out"
+                : onSale
+                ? `SALE -${Math.round((1 - product.price / product.compare_at_price!) * 100)}%`
+                : isNew
+                ? "✨ New"
+                : "⭐ Featured"}
             </span>
           )}
         </div>
@@ -49,6 +71,11 @@ export function ProductCard({ product }: { product: Product }) {
             {product.title}
           </p>
           <span className="tag-price">{formatLKR(product.price)}</span>
+          {onSale && (
+            <span className="ml-2 text-xs text-soft line-through">
+              {formatLKR(product.compare_at_price!)}
+            </span>
+          )}
           {product.colors && product.colors.length > 0 && (
             <div className="flex items-center gap-1 mt-2">
               {product.colors.slice(0, 5).map((c) => (

@@ -1,5 +1,6 @@
 // components/ContactButtons.tsx
 import { formatLKR } from "@/lib/types";
+import { toWaNumber } from "@/lib/order-status";
 
 export default function ContactButtons({
   whatsapp,
@@ -19,7 +20,7 @@ export default function ContactButtons({
       price
     )}) on AndumPola. Is it available?\n${productUrl}`
   );
-  const wa = whatsapp.replace(/[^0-9]/g, "");
+  const wa = toWaNumber(whatsapp);
 
   return (
     <div className="grid grid-cols-2 gap-3">

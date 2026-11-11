@@ -12,6 +12,8 @@ import { byPlanRank } from "@/lib/plan";
 
 export const metadata = { title: "Search — AndumPola" };
 
+const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+
 export default async function SearchPage({
   searchParams,
 }: {
@@ -23,9 +25,18 @@ export default async function SearchPage({
     audience?: string;
     color?: string;
     vertical?: string;
+    min?: string;
+    max?: string;
+    size?: string;
+    sort?: string;
   }>;
 }) {
-  const { q, category, province, district, audience, color, vertical } = await searchParams;
+  const { q, category, province, district, audience, color, vertical, size, sort } =
+    await searchParams;
+  const sp = await searchParams;
+  const min = Number(sp.min) > 0 ? String(Math.floor(Number(sp.min))) : undefined;
+  const max = Number(sp.max) > 0 ? String(Math.floor(Number(sp.max))) : undefined;
+  const safeSize = size && SIZE_OPTIONS.includes(size) ? size : undefined;
   const supabase = supabasePublic();
 
   let categoriesQuery = supabase
@@ -50,8 +61,14 @@ export default async function SearchPage({
     .select("*, shops!inner(name, slug, city, district, plan, status), categories!inner(name, slug)")
     .eq("is_available", true)
     .eq("shops.status", "active")
-    .order("created_at", { ascending: false })
+    .order(sort === "price_asc" || sort === "price_desc" ? "price" : "created_at", {
+      ascending: sort === "price_asc",
+    })
     .limit(48);
+  if (min) query = query.gte("price", Number(min));
+  if (max) query = query.lte("price", Number(max));
+  // size in stock (sizes is a jsonb map like {"M": 3})
+  if (safeSize) query = query.gt(`sizes->>${safeSize}`, "0");
 
   if (q && q.trim()) {
     query = query.textSearch("search_vector", q.trim(), {
@@ -69,11 +86,11 @@ export default async function SearchPage({
   }
 
   const { data: rawProducts } = await query;
-  // Ultra shops first, then Pro/trial, then Basic (newest first within each)
-  const products = byPlanRank(
-    rawProducts ?? [],
-    (p) => (p.shops as { plan?: string } | null)?.plan
-  );
+  // Default sort: Ultra shops first, then Pro/trial, then Basic.
+  // Price sorts keep the exact price order.
+  const products = sort
+    ? rawProducts ?? []
+    : byPlanRank(rawProducts ?? [], (p) => (p.shops as { plan?: string } | null)?.plan);
   const activeCategory = (categories as Category[] | null)?.find(
     (c) => c.slug === category
   );
@@ -89,6 +106,10 @@ export default async function SearchPage({
       district,
       audience,
       color,
+      min,
+      max,
+      size: safeSize,
+      sort,
       ...next,
     };
     const parts = Object.entries(merged)
@@ -173,6 +194,70 @@ export default async function SearchPage({
           </div>
         )}
       </div>
+
+      {/* Price, size & sort */}
+      <form
+        action="/search"
+        className="mb-4 rounded-xl bg-white border border-line p-4"
+      >
+        {Object.entries({ q, category, province, district, audience, color, vertical })
+          .filter(([, v]) => v)
+          .map(([k, v]) => (
+            <input key={k} type="hidden" name={k} value={v} />
+          ))}
+        <p className="text-sm font-semibold mb-2">Price, size &amp; sort</p>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <input
+            name="min"
+            type="number"
+            min={0}
+            defaultValue={min}
+            placeholder="Min Rs"
+            className="rounded-lg border border-line px-3 py-2 text-sm"
+          />
+          <input
+            name="max"
+            type="number"
+            min={0}
+            defaultValue={max}
+            placeholder="Max Rs"
+            className="rounded-lg border border-line px-3 py-2 text-sm"
+          />
+          <select
+            name="size"
+            defaultValue={safeSize ?? ""}
+            className="rounded-lg border border-line px-3 py-2 text-sm bg-white"
+          >
+            <option value="">Any size</option>
+            {SIZE_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                Size {s}
+              </option>
+            ))}
+          </select>
+          <select
+            name="sort"
+            defaultValue={sort ?? ""}
+            className="rounded-lg border border-line px-3 py-2 text-sm bg-white"
+          >
+            <option value="">Best match</option>
+            <option value="newest">Newest</option>
+            <option value="price_asc">Price: low to high</option>
+            <option value="price_desc">Price: high to low</option>
+          </select>
+          <button className="col-span-2 sm:col-span-1 rounded-lg bg-berry text-white text-sm font-semibold px-4 py-2">
+            Apply
+          </button>
+        </div>
+        {(min || max || safeSize || sort) && (
+          <Link
+            href={qs({ min: undefined, max: undefined, size: undefined, sort: undefined })}
+            className="inline-block mt-2 text-xs text-berry underline"
+          >
+            Clear price / size / sort
+          </Link>
+        )}
+      </form>
 
       {/* Colour filter */}
       <div className="mb-4 rounded-xl bg-white border border-line p-4">

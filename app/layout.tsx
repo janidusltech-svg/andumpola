@@ -1,5 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { LangProvider } from "@/lib/i18n";
 import { Schibsted_Grotesk, Inter } from "next/font/google";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
@@ -54,6 +56,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className="min-h-screen flex flex-col">
+        <LangProvider>
         <SiteHeader />
 
         <main className="flex-1">{children}</main>
@@ -110,6 +113,8 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        </LangProvider>
+        <Analytics />
       </body>
     </html>
   );

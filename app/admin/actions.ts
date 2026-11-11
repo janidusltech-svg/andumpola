@@ -241,3 +241,15 @@ async function applyPaidMonths(
     .eq("id", shop.id);
   if (error) throw new Error(error.message);
 }
+
+/** Mark a customer report as handled */
+export async function resolveReport(reportId: string) {
+  await assertAdmin();
+  const { error } = await supabaseAdmin()
+    .from("shop_reports")
+    .update({ resolved: true })
+    .eq("id", reportId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/reports");
+  revalidatePath("/admin");
+}

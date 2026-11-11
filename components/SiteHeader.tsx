@@ -1,5 +1,6 @@
 // components/SiteHeader.tsx
 import Link from "next/link";
+import { LanguageSwitcher, T } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/server";
 import { countNewOrders } from "@/lib/new-orders";
 
@@ -73,6 +74,7 @@ export default async function SiteHeader() {
           >
             Electronics
           </Link>
+          <LanguageSwitcher />
           <Link
             href="/search"
             className="hover:text-berry p-2 sm:p-0 sm:px-1"
@@ -87,7 +89,7 @@ export default async function SiteHeader() {
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3-3" strokeLinecap="round" />
             </svg>
-            <span className="hidden sm:inline">Search</span>
+            <span className="hidden sm:inline"><T k="search" /></span>
           </Link>
 
           {!user && (
@@ -102,8 +104,8 @@ export default async function SiteHeader() {
                 href="/signup"
                 className="btn btn-primary !py-2 !px-3 sm:!px-4 whitespace-nowrap text-sm"
               >
-                <span className="sm:hidden">Sell</span>
-                <span className="hidden sm:inline">Sell on AndumPola</span>
+                <span className="sm:hidden"><T k="sell" /></span>
+                <span className="hidden sm:inline"><T k="sellOn" /></span>
               </Link>
             </>
           )}

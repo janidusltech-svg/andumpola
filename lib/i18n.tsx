@@ -1,0 +1,107 @@
+"use client";
+// lib/i18n.tsx — light English / සිංහල / தமிழ் switch for customer pages.
+// Pages stay cached (fast); the chosen language is applied in the browser.
+import { createContext, useContext, useEffect, useState } from "react";
+
+export type Lang = "en" | "si" | "ta";
+
+const DICT = {
+  search: ["Search", "සොයන්න", "தேடு"],
+  sell: ["Sell", "විකුණන්න", "விற்க"],
+  sellOn: ["Sell on AndumPola", "AndumPola හි විකුණන්න", "AndumPola இல் விற்கவும்"],
+  orderOnWhatsApp: ["Order on WhatsApp", "WhatsApp හරහා ඇණවුම් කරන්න", "WhatsApp மூலம் ஆர்டர் செய்யுங்கள்"],
+  callShop: ["Call shop", "සාප්පුවට අමතන්න", "கடையை அழைக்கவும்"],
+  chooseSize: ["Choose size", "ප්‍රමාණය තෝරන්න", "அளவைத் தேர்ந்தெடுக்கவும்"],
+  quantity: ["Quantity", "ගණන", "எண்ணிக்கை"],
+  total: ["Total", "මුළු මුදල", "மொத்தம்"],
+  orderNote: [
+    "Your order goes straight to the shop on WhatsApp. They confirm price, delivery and payment with you directly.",
+    "ඔබේ ඇණවුම WhatsApp හරහා කෙලින්ම සාප්පුවට යයි. මිල, බෙදාහැරීම සහ ගෙවීම ඔවුන් ඔබ සමඟ සෘජුවම තහවුරු කරයි.",
+    "உங்கள் ஆர்டர் WhatsApp மூலம் நேரடியாக கடைக்குச் செல்லும். விலை, டெலிவரி மற்றும் கட்டணத்தை அவர்கள் உங்களுடன் நேரடியாக உறுதிப்படுத்துவார்கள்.",
+  ],
+  soldOut: ["Sold out", "අවසන්", "விற்றுத் தீர்ந்தது"],
+  soldOutNow: ["Sold out right now", "දැනට තොග අවසන්", "தற்போது இருப்பில் இல்லை"],
+  askComeback: [
+    "Ask on WhatsApp if it's coming back",
+    "නැවත ලැබෙනවාද කියා WhatsApp හරහා අහන්න",
+    "மீண்டும் வருமா என WhatsApp இல் கேளுங்கள்",
+  ],
+  description: ["Description", "විස්තරය", "விளக்கம்"],
+  soldBy: ["Sold by", "විකුණන්නා", "விற்பனையாளர்"],
+  colours: ["Colours", "වර්ණ", "நிறங்கள்"],
+  share: ["Share", "බෙදාගන්න", "பகிர்"],
+  featured: ["Featured", "විශේෂ භාණ්ඩ", "சிறப்புப் பொருட்கள்"],
+  allProducts: ["All products", "සියලු භාණ්ඩ", "அனைத்து பொருட்கள்"],
+  all: ["All", "සියල්ල", "அனைத்தும்"],
+  reviews: ["Reviews", "සමාලෝචන", "மதிப்புரைகள்"],
+  shopLocation: ["Shop location", "සාප්පුවේ ස්ථානය", "கடையின் இருப்பிடம்"],
+  openMaps: ["Open in Google Maps →", "Google Maps හි විවෘත කරන්න →", "Google Maps இல் திறக்கவும் →"],
+  delivers: ["Delivers", "බෙදාහරින ප්‍රදේශ", "டெலிவரி பகுதிகள்"],
+  delivery: ["Delivery", "බෙදාහැරීමේ ගාස්තුව", "டெலிவரி கட்டணம்"],
+  cod: ["Cash on delivery", "භාණ්ඩ ලැබුණු පසු මුදල් ගෙවිය හැක", "பொருள் கிடைத்ததும் பணம் செலுத்தலாம்"],
+  payByBank: ["Prefer to pay by bank transfer?", "බැංකු මාරුවෙන් ගෙවීමට කැමතිද?", "வங்கி பரிமாற்றம் மூலம் செலுத்த விரும்புகிறீர்களா?"],
+  noProducts: [
+    "This shop has not added products yet. Check back soon!",
+    "මෙම සාප්පුව තවම භාණ්ඩ එකතු කර නැත. ඉක්මනින් නැවත බලන්න!",
+    "இந்தக் கடை இன்னும் பொருட்களைச் சேர்க்கவில்லை. விரைவில் மீண்டும் பாருங்கள்!",
+  ],
+} as const;
+
+export type TKey = keyof typeof DICT;
+const IDX: Record<Lang, number> = { en: 0, si: 1, ta: 2 };
+
+const LangCtx = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({
+  lang: "en",
+  setLang: () => {},
+});
+
+export function LangProvider({ children }: { children: React.ReactNode }) {
+  const [lang, setLangState] = useState<Lang>("en");
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("ap-lang") as Lang | null;
+      if (saved && saved in IDX) setLangState(saved);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    document.documentElement.lang = lang === "en" ? "en" : lang;
+  }, [lang]);
+  function setLang(l: Lang) {
+    setLangState(l);
+    try {
+      localStorage.setItem("ap-lang", l);
+    } catch {}
+  }
+  return <LangCtx.Provider value={{ lang, setLang }}>{children}</LangCtx.Provider>;
+}
+
+export function useLang() {
+  return useContext(LangCtx);
+}
+
+export function useT() {
+  const { lang } = useLang();
+  return (k: TKey) => DICT[k][IDX[lang]];
+}
+
+/** <T k="orderOnWhatsApp" /> — usable inside server components too */
+export function T({ k }: { k: TKey }) {
+  const t = useT();
+  return <>{t(k)}</>;
+}
+
+export function LanguageSwitcher() {
+  const { lang, setLang } = useLang();
+  return (
+    <select
+      aria-label="Language"
+      value={lang}
+      onChange={(e) => setLang(e.target.value as Lang)}
+      className="rounded-lg border border-line bg-white px-1.5 py-1.5 text-xs sm:text-sm"
+    >
+      <option value="en">EN</option>
+      <option value="si">සිං</option>
+      <option value="ta">தமி</option>
+    </select>
+  );
+}

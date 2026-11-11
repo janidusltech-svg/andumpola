@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatLKR, Product } from "@/lib/types";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import { planInfo } from "@/lib/plan";
+import ProductQuickActions from "@/components/ProductQuickActions";
 
 export default async function ProductsPage() {
   const supabase = await createClient();
@@ -97,7 +98,7 @@ export default async function ProductsPage() {
             return (
               <div
                 key={p.id}
-                className="flex items-center gap-4 bg-white border border-line rounded-xl p-3"
+                className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-white border border-line rounded-xl p-3"
               >
                 <div className="h-16 w-16 rounded-lg bg-line/40 overflow-hidden shrink-0">
                   {p.images?.[0] && (
@@ -124,6 +125,9 @@ export default async function ProductsPage() {
                   Edit
                 </Link>
                 <DeleteProductButton id={p.id} />
+                <div className="basis-full sm:basis-auto sm:order-none">
+                  <ProductQuickActions id={p.id} soldOut={!!p.sold_out} />
+                </div>
               </div>
             );
           })}

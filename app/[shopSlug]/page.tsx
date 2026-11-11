@@ -11,6 +11,9 @@ import ReviewForm from "@/components/ReviewForm";
 import BackButton from "@/components/BackButton";
 import TrackView from "@/components/TrackView";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import DeliveryInfo from "@/components/DeliveryInfo";
+import ReportShop from "@/components/ReportShop";
+import { T } from "@/lib/i18n";
 
 export const revalidate = 60;
 
@@ -113,7 +116,10 @@ export default async function ShopPage({
     .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false });
 
-  const all = (products ?? []) as Product[];
+  // sold-out items stay visible (customers can still ask) but go last
+  const all = ((products ?? []) as Product[]).sort(
+    (a, b) => Number(!!a.sold_out) - Number(!!b.sold_out)
+  );
   const featured = all.filter((p) => p.is_featured);
   const shopCategories = Array.from(
     new Map(
@@ -293,11 +299,17 @@ export default async function ShopPage({
           )}
         </div>
 
+        <DeliveryInfo
+          areas={s.delivery_areas}
+          fee={s.delivery_fee}
+          cod={s.cash_on_delivery}
+        />
+
         {/* Featured products — the shop's highlights */}
         {featured.length > 0 && !category && (
           <div className="mb-8">
             <h2 className="display text-xl font-bold mb-3 flex items-center gap-2">
-              ⭐ Featured
+              ⭐ <T k="featured" />
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {featured.map((p) => (
@@ -338,7 +350,7 @@ export default async function ShopPage({
 
         {/* Products */}
         {featured.length > 0 && !category && visible.length > 0 && (
-          <h2 className="display text-xl font-bold mb-3">All products</h2>
+          <h2 className="display text-xl font-bold mb-3"><T k="allProducts" /></h2>
         )}
         {visible.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
@@ -348,7 +360,7 @@ export default async function ShopPage({
           </div>
         ) : (
           <p className="text-soft bg-white border border-line rounded-lg p-8 text-center mb-8">
-            This shop has not added products yet. Check back soon!
+            <T k="noProducts" />
           </p>
         )}
 
@@ -356,7 +368,7 @@ export default async function ShopPage({
         {s.latitude != null && s.longitude != null && (
           <section id="location" className="pb-10 max-w-2xl scroll-mt-24">
             <h2 className="display text-xl sm:text-2xl font-bold mb-3">
-              📍 Shop location
+              📍 <T k="shopLocation" />
             </h2>
             <ShopMap lat={s.latitude} lng={s.longitude} name={s.name} />
             <div className="flex flex-wrap gap-2 mt-3">
@@ -366,7 +378,7 @@ export default async function ShopPage({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg bg-berry text-white font-semibold px-4 py-2.5 text-sm hover:bg-berry-dark"
               >
-                Open in Google Maps →
+                <T k="openMaps" />
               </a>
               {s.address && (
                 <span className="inline-flex items-center text-sm text-soft">
@@ -381,7 +393,7 @@ export default async function ShopPage({
         {/* Reviews */}
         <section className="pb-12 max-w-2xl">
           <h2 className="display text-xl sm:text-2xl font-bold mb-4">
-            Reviews
+            <T k="reviews" />
             {reviewCount > 0 && (
               <span className="text-soft font-normal text-base ml-2">
                 {avgRating.toFixed(1)} ★ · {reviewCount}
@@ -431,6 +443,10 @@ export default async function ShopPage({
             </p>
           )}
         </section>
+
+        <div className="pb-12">
+          <ReportShop shopId={s.id} />
+        </div>
       </div>
     </div>
   );

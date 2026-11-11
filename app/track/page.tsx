@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { formatLKR } from "@/lib/types";
-import { statusInfo } from "@/lib/order-status";
+import { toWaNumber, statusInfo } from "@/lib/order-status";
 
 type OrderStatus = {
   order_ref: string;
@@ -109,10 +109,7 @@ function TrackInner() {
 
           {order.shop_whatsapp && (
             <a
-              href={`https://wa.me/${order.shop_whatsapp.replace(
-                /[^0-9]/g,
-                ""
-              )}?text=${encodeURIComponent(
+              href={`https://wa.me/${toWaNumber(order.shop_whatsapp)}?text=${encodeURIComponent(
                 `Hi, I'm checking on my order ${order.order_ref}.`
               )}`}
               target="_blank"

@@ -85,6 +85,10 @@ export type Shop = {
   tiktok_url?: string | null;
   business_hours?: string | null;
   announcement?: string | null;
+  delivery_areas?: string | null;
+  delivery_fee?: string | null;
+  cash_on_delivery?: boolean | null;
+  plan?: string;
   vertical?: "clothing" | "furniture" | "electronics";
   status?: string;
   enable_online_orders: boolean;
@@ -106,8 +110,11 @@ export type Product = {
   sizes: Record<string, number>;
   images: string[];
   is_available: boolean;
+  sold_out?: boolean | null;
+  compare_at_price?: number | null;
   created_at: string;
-  shops?: Pick<Shop, "name" | "slug" | "whatsapp" | "phone" | "city" | "enable_online_orders">;
+  shops?: Pick<Shop, "name" | "slug" | "whatsapp" | "phone" | "city" | "enable_online_orders"> &
+    Partial<Pick<Shop, "plan" | "status" | "delivery_areas" | "delivery_fee" | "cash_on_delivery">>;
   categories?: Pick<Category, "name" | "slug">;
 };
 

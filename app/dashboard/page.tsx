@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import CreateShopForm from "@/components/CreateShopForm";
 import SetupGuide from "@/components/SetupGuide";
 import ShareKit from "@/components/ShareKit";
+import InstallApp from "@/components/InstallApp";
 import { countNewOrders } from "@/lib/new-orders";
 
 export default async function DashboardHome() {
@@ -94,6 +95,7 @@ export default async function DashboardHome() {
         </Link>
       )}
 
+      <InstallApp />
       <ShareKit slug={shop.slug} name={shop.name} />
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

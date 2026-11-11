@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "@/lib/order-status";
 // components/CreateShopForm.tsx
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -81,7 +82,7 @@ export default function CreateShopForm() {
         name: f.name.trim(),
         slug,
         description: f.description.trim() || null,
-        whatsapp: f.whatsapp.replace(/[^0-9]/g, ""),
+        whatsapp: toWaNumber(f.whatsapp),
         phone: f.phone.trim(),
         province: f.province || null,
         district: f.district || null,
