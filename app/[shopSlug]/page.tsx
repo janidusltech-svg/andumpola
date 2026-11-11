@@ -9,6 +9,7 @@ import ShopMap from "@/components/ShopMap";
 import Stars from "@/components/Stars";
 import ReviewForm from "@/components/ReviewForm";
 import BackButton from "@/components/BackButton";
+import TrackView from "@/components/TrackView";
 
 export const revalidate = 60;
 
@@ -111,6 +112,7 @@ export default async function ShopPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4">
+      <TrackView shopId={s.id} />
       {/* Back */}
       <div className="pt-4">
         <BackButton label="Back" fallback="/shops" />

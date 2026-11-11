@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { supabasePublic } from "@/lib/supabase/public";
 import { Product, formatLKR, audienceLabel, colorHex } from "@/lib/types";
 import BackButton from "@/components/BackButton";
-import ContactButtons from "@/components/ContactButtons";
+import OrderOnWhatsApp from "@/components/OrderOnWhatsApp";
 import OrderButton from "@/components/OrderButton";
 import SaveButton from "@/components/SaveButton";
 import ShareButton from "@/components/ShareButton";
 import ProductGallery from "@/components/ProductGallery";
+import TrackView from "@/components/TrackView";
 
 export const revalidate = 60;
 
@@ -74,11 +75,13 @@ export default async function ProductPage({
 
   const sizes = Object.entries(p.sizes ?? {});
   const inStock = sizes.filter(([, qty]) => Number(qty) > 0);
+  const inStockSizes = inStock.map(([s]) => s);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://andumpola.lk";
   const productUrl = `${baseUrl}/${shopSlug}/${p.id}`;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+      <TrackView shopId={p.shop_id} productId={p.id} />
       {/* Back */}
       <div className="mb-3">
         <BackButton label="Back" fallback={`/${shopSlug}`} />
@@ -149,28 +152,6 @@ export default async function ProductPage({
             </span>
           </p>
 
-          {/* Sizes */}
-          <div className="mt-6">
-            <p className="text-sm font-semibold mb-2">Available sizes</p>
-            {inStock.length > 0 ? (
-              <div className="flex gap-2 flex-wrap">
-                {inStock.map(([size, qty]) => (
-                  <span
-                    key={size}
-                    className="rounded-md border border-line bg-white px-3 py-1.5 text-sm font-medium"
-                    title={`${qty} in stock`}
-                  >
-                    {size}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-soft">
-                Contact the shop for size availability.
-              </p>
-            )}
-          </div>
-
           {p.description && (
             <div className="mt-6">
               <p className="text-sm font-semibold mb-1">Description</p>
@@ -178,8 +159,8 @@ export default async function ProductPage({
             </div>
           )}
 
-          {/* Shop + contact */}
-          <div className="mt-8 rounded-xl bg-white border border-line p-5">
+          {/* Shop + order */}
+          <div className="mt-8 rounded-2xl bg-white border border-line p-5">
             <p className="text-sm text-soft">Sold by</p>
             <Link
               href={`/${shopSlug}`}
@@ -190,43 +171,51 @@ export default async function ProductPage({
             {p.shops?.city && (
               <p className="text-xs text-soft mb-4">{p.shops.city}</p>
             )}
-            <div className="mt-3">
-              <ContactButtons
-                whatsapp={p.shops!.whatsapp}
-                phone={p.shops!.phone}
+
+            <div className="mt-4">
+              <OrderOnWhatsApp
+                productId={p.id}
                 productTitle={p.title}
                 price={p.price}
+                whatsapp={p.shops!.whatsapp}
+                phone={p.shops!.phone}
+                shopName={p.shops!.name}
+                sizes={inStockSizes}
                 productUrl={productUrl}
               />
             </div>
+
+            {/* Optional online order (shop opt-in) */}
             {p.shops?.enable_online_orders && inStock.length > 0 && (
-              <OrderButton
-                productId={p.id}
-                price={p.price}
-                sizes={inStock.map(([s]) => s)}
-                shopName={p.shops.name}
-                bank={{
-                  bank_name: shopBank.bank_name,
-                  bank_branch: shopBank.bank_branch,
-                  bank_account_name: shopBank.bank_account_name,
-                  bank_account_number: shopBank.bank_account_number,
-                }}
-              />
+              <div className="mt-3 pt-3 border-t border-line">
+                <p className="text-xs text-soft mb-1 text-center">
+                  Prefer to pay by bank transfer?
+                </p>
+                <OrderButton
+                  productId={p.id}
+                  price={p.price}
+                  sizes={inStockSizes}
+                  shopName={p.shops.name}
+                  bank={{
+                    bank_name: shopBank.bank_name,
+                    bank_branch: shopBank.bank_branch,
+                    bank_account_name: shopBank.bank_account_name,
+                    bank_account_number: shopBank.bank_account_number,
+                  }}
+                />
+              </div>
             )}
-            <div className="mt-3">
-              <SaveButton productId={p.id} variant="full" />
-            </div>
-            <div className="mt-3 flex justify-center">
+
+            <div className="mt-4 flex items-center gap-3">
+              <div className="flex-1">
+                <SaveButton productId={p.id} variant="full" />
+              </div>
               <ShareButton
                 url={productUrl}
                 text={`Check out "${p.title}" on AndumPola!`}
-                label="Share this product"
+                label="Share"
               />
             </div>
-            <p className="mt-4 text-[11px] text-soft text-center border-t border-line pt-3">
-              Payments go directly to the shop. AndumPola does not process or
-              hold payments.
-            </p>
           </div>
         </div>
       </div>

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CreateShopForm from "@/components/CreateShopForm";
 import SetupGuide from "@/components/SetupGuide";
-import { formatLKR } from "@/lib/types";
 
 export default async function DashboardHome() {
   const supabase = await createClient();
@@ -33,14 +32,27 @@ export default async function DashboardHome() {
   }
 
   // Has shop — show stats
-  const [{ count: productCount }, { data: pendingOrders }] = await Promise.all([
+  const [
+    { count: productCount },
+    { count: leadCount },
+    { count: viewCount },
+    { data: pendingOrders },
+  ] = await Promise.all([
     supabase
       .from("products")
       .select("*", { count: "exact", head: true })
       .eq("shop_id", shop.id),
     supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .eq("shop_id", shop.id),
+    supabase
+      .from("shop_views")
+      .select("*", { count: "exact", head: true })
+      .eq("shop_id", shop.id),
+    supabase
       .from("orders")
-      .select("id, total")
+      .select("id")
       .eq("shop_id", shop.id)
       .eq("status", "pending"),
   ]);
@@ -61,12 +73,23 @@ export default async function DashboardHome() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Stat label="Products" value={String(productCount ?? 0)} />
-        <Stat label="Pending orders" value={String(pendingCount)} highlight={pendingCount > 0} />
         <Stat
-          label="Your shop page"
-          value="View →"
-          href={`/${shop.slug}`}
+          label="Shop views"
+          value={String(viewCount ?? 0)}
+          href="/dashboard/analytics"
         />
+        <Stat
+          label="WhatsApp orders"
+          value={String(leadCount ?? 0)}
+          href="/dashboard/analytics"
+          highlight={(leadCount ?? 0) > 0}
+        />
+        <Stat
+          label="Bank orders"
+          value={String(pendingCount)}
+          href="/dashboard/orders"
+        />
+        <Stat label="Your shop page" value="View →" href={`/${shop.slug}`} />
       </div>
 
       <div className="mt-8 flex gap-3 flex-wrap">

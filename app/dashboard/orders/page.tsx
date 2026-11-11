@@ -19,6 +19,25 @@ type OrderRow = {
   products?: { title: string } | null;
 };
 
+type LeadRow = {
+  id: string;
+  product_title: string | null;
+  size: string | null;
+  quantity: number;
+  created_at: string;
+};
+
+function timeAgo(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+
 export default async function OrdersPage() {
   const supabase = await createClient();
   const {
@@ -33,81 +52,138 @@ export default async function OrdersPage() {
 
   if (!shop) redirect("/dashboard");
 
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("*, products(title)")
-    .eq("shop_id", shop.id)
-    .order("created_at", { ascending: false });
+  const [{ data: orders }, { data: leads }] = await Promise.all([
+    supabase
+      .from("orders")
+      .select("*, products(title)")
+      .eq("shop_id", shop.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("leads")
+      .select("id, product_title, size, quantity, created_at")
+      .eq("shop_id", shop.id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
 
   const list = (orders ?? []) as OrderRow[];
+  const leadList = (leads ?? []) as LeadRow[];
 
   return (
     <div>
-      <h1 className="display text-2xl font-bold mb-2">Orders</h1>
-      {!shop.enable_online_orders && (
-        <p className="text-sm text-soft mb-6">
-          Online orders are currently off. Turn them on in Shop settings to
-          receive website orders. You&apos;ll still get WhatsApp messages
-          directly.
-        </p>
-      )}
+      <h1 className="display text-2xl font-bold mb-1">Orders</h1>
+      <p className="text-sm text-soft mb-6">
+        Customers order you on WhatsApp — these are the people who clicked
+        &ldquo;Order on WhatsApp&rdquo; so you can follow up.
+      </p>
 
-      {list.length === 0 ? (
-        <div className="rounded-xl bg-white border border-line p-10 text-center">
-          <p className="display text-lg font-semibold">No orders yet</p>
-          <p className="text-soft text-sm mt-1">
-            When customers order online, they appear here for you to approve.
-          </p>
+      {/* WhatsApp order leads */}
+      <section className="mb-10">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="display text-lg font-bold">
+            💬 WhatsApp orders
+            {leadList.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-soft">
+                {leadList.length}
+              </span>
+            )}
+          </h2>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {list.map((o) => (
-            <div
-              key={o.id}
-              className="bg-white border border-line rounded-xl p-4"
-            >
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs bg-sand px-2 py-0.5 rounded">
-                      {o.order_ref}
-                    </span>
-                    <StatusBadge status={o.status} />
-                  </div>
-                  <p className="font-semibold mt-1">{o.products?.title}</p>
-                  <p className="text-sm text-soft">
-                    Size {o.size} · Qty {o.quantity} ·{" "}
-                    <strong className="text-ink">{formatLKR(o.total)}</strong>
+        {leadList.length === 0 ? (
+          <div className="rounded-xl bg-white border border-line p-6 text-center">
+            <p className="text-soft text-sm">
+              No WhatsApp orders yet. When a customer taps &ldquo;Order on
+              WhatsApp&rdquo; on one of your products, it shows here and they
+              message you directly.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {leadList.map((l) => (
+              <div
+                key={l.id}
+                className="bg-white border border-line rounded-xl p-3 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="font-semibold truncate">
+                    {l.product_title || "Product"}
                   </p>
-                  <div className="text-sm mt-2 space-y-0.5">
-                    <p>👤 {o.customer_name}</p>
-                    <p>
-                      📞{" "}
-                      <a
-                        href={`tel:${o.customer_phone}`}
-                        className="text-berry"
-                      >
-                        {o.customer_phone}
-                      </a>
-                    </p>
-                    <p className="text-soft">📍 {o.customer_address}</p>
-                  </div>
+                  <p className="text-sm text-soft">
+                    {l.size ? `Size ${l.size} · ` : ""}Qty {l.quantity}
+                  </p>
                 </div>
+                <span className="text-xs text-soft shrink-0">
+                  {timeAgo(l.created_at)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
-                <div className="flex flex-col items-end gap-2">
-                  {o.receipt_url && (
-                    <ReceiptLink path={o.receipt_url} />
-                  )}
-                  {o.status === "pending" && <OrderActions orderId={o.id} />}
-                  {o.status === "approved" && (
-                    <OrderActions orderId={o.id} approvedMode />
-                  )}
+      {/* Online (bank transfer) orders */}
+      <section>
+        <h2 className="display text-lg font-bold mb-3">
+          🏦 Bank-transfer orders
+        </h2>
+        {!shop.enable_online_orders && (
+          <p className="text-sm text-soft mb-4">
+            Bank-transfer online orders are off. Turn them on in Shop settings
+            if you want customers to order and upload a deposit receipt.
+          </p>
+        )}
+        {list.length === 0 ? (
+          <div className="rounded-xl bg-white border border-line p-6 text-center">
+            <p className="text-soft text-sm">No bank-transfer orders yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {list.map((o) => (
+              <div
+                key={o.id}
+                className="bg-white border border-line rounded-xl p-4"
+              >
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs bg-sand px-2 py-0.5 rounded">
+                        {o.order_ref}
+                      </span>
+                      <StatusBadge status={o.status} />
+                    </div>
+                    <p className="font-semibold mt-1">{o.products?.title}</p>
+                    <p className="text-sm text-soft">
+                      Size {o.size} · Qty {o.quantity} ·{" "}
+                      <strong className="text-ink">{formatLKR(o.total)}</strong>
+                    </p>
+                    <div className="text-sm mt-2 space-y-0.5">
+                      <p>👤 {o.customer_name}</p>
+                      <p>
+                        📞{" "}
+                        <a
+                          href={`tel:${o.customer_phone}`}
+                          className="text-berry"
+                        >
+                          {o.customer_phone}
+                        </a>
+                      </p>
+                      <p className="text-soft">📍 {o.customer_address}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2">
+                    {o.receipt_url && <ReceiptLink path={o.receipt_url} />}
+                    {o.status === "pending" && <OrderActions orderId={o.id} />}
+                    {o.status === "approved" && (
+                      <OrderActions orderId={o.id} approvedMode />
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
